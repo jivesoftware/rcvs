@@ -1,0 +1,1130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HBaseSetOfSortedMapsImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">row-column-value-store-hbase</a> &gt; <a href="index.html" class="el_package">com.jivesoftware.os.rcvs.hbase</a> &gt; <span class="el_source">HBaseSetOfSortedMapsImpl.java</span></div><h1>HBaseSetOfSortedMapsImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Jive Software, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package com.jivesoftware.os.rcvs.hbase;
+
+import com.google.common.collect.Lists;
+import com.jivesoftware.os.jive.utils.base.interfaces.CallbackStream;
+import com.jivesoftware.os.jive.utils.logger.MetricLogger;
+import com.jivesoftware.os.jive.utils.logger.MetricLoggerFactory;
+import com.jivesoftware.os.rcvs.api.CallbackStreamException;
+import com.jivesoftware.os.rcvs.api.ColumnValueAndTimestamp;
+import com.jivesoftware.os.rcvs.api.KeyedColumnValueCallbackStream;
+import com.jivesoftware.os.rcvs.api.RowColumValueTimestampAdd;
+import com.jivesoftware.os.rcvs.api.RowColumnTimestampRemove;
+import com.jivesoftware.os.rcvs.api.RowColumnValueStore;
+import com.jivesoftware.os.rcvs.api.RowColumnValueStoreMarshaller;
+import com.jivesoftware.os.rcvs.api.RowColumnValueStoreMarshallerException;
+import com.jivesoftware.os.rcvs.api.TenantIdAndRow;
+import com.jivesoftware.os.rcvs.api.TenantKeyedColumnValueCallbackStream;
+import com.jivesoftware.os.rcvs.api.TenantRowColumValueTimestampAdd;
+import com.jivesoftware.os.rcvs.api.TenantRowColumnTimestampRemove;
+import com.jivesoftware.os.rcvs.api.ValueStoreMarshaller;
+import com.jivesoftware.os.rcvs.api.timestamper.Timestamper;
+import com.jivesoftware.os.rcvs.shared.RowColumnValueStoreCounters;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.HTablePool;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.ColumnRangeFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+
+/**
+ * HBase implementation of RowColumnValueStore generic interface. In any method that has an Integer overrideConsistency, that argument is ignored. In any method
+ * that has an Integer overrideNumberOfRetries, that argument is ignored. TODO: This implementation should probably not use the Timestamper, at least by
+ * default. It is better that we have hbase region servers pick the timestamp/version themselves by default. That way we rely on fewer machines having
+ * synchronized clocks: The hbase region servers only, instead of all hbase clients.
+ *
+ * @param &lt;T&gt; type of object that will be used for tenantId information
+ * @param &lt;R&gt; type of object that will be used for the row key
+ * @param &lt;C&gt; type of object that will be used for column key
+ * @param &lt;V&gt; type of object that will be used for values
+ * @author jonathan
+ */
+public class HBaseSetOfSortedMapsImpl&lt;T, R, C, V&gt; implements RowColumnValueStore&lt;T, R, C, V, Exception&gt; {
+
+<span class="nc" id="L75">    private static final MetricLogger LOG = MetricLoggerFactory.getLogger(true);</span>
+<span class="nc" id="L76">    public static final byte[] NULL = new byte[]{};</span>
+    // TODO Timestamper is supplied by the client and uses client's local time. We should have hbase region servers
+    // pick the timestamp/version themselves, at least by default.
+    private final Timestamper timestamper;
+    private final RowColumnValueStoreMarshaller&lt;T, R, C, V&gt; marshaller;
+    private final HTablePool tablePool;
+    private final byte[] table;
+    private final byte[] family;
+    private final RowColumnValueStoreCounters counters;
+    private final ExecutorService marshalExecutor;
+
+    /**
+     * Create a new wrapper over an HBase table.
+     *
+     * @param tablePool cannot be null
+     * @param tableName cannot be null
+     * @param family cannot be null
+     * @param marshaller cannot be null
+     * @param timestamper can't be null
+     * @param marshalExecutor
+     * @throws IOException
+     */
+    public HBaseSetOfSortedMapsImpl(
+        HTablePool tablePool,
+        String tableName,
+        String family,
+        RowColumnValueStoreMarshaller&lt;T, R, C, V&gt; marshaller,
+        Timestamper timestamper,
+<span class="nc" id="L104">        ExecutorService marshalExecutor) throws IOException {</span>
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (timestamper == null) {</span>
+<span class="nc" id="L107">            throw new IllegalArgumentException(&quot;timestamper cannot be null&quot;);</span>
+        }
+<span class="nc" id="L109">        this.timestamper = timestamper;</span>
+<span class="nc" id="L110">        this.counters = new RowColumnValueStoreCounters(tableName);</span>
+
+<span class="nc" id="L112">        this.marshaller = marshaller;</span>
+<span class="nc" id="L113">        this.family = family.getBytes(&quot;UTF-8&quot;);</span>
+<span class="nc" id="L114">        this.table = tableName.getBytes(&quot;UTF-8&quot;);</span>
+<span class="nc" id="L115">        this.tablePool = tablePool;</span>
+
+<span class="nc" id="L117">        this.marshalExecutor = marshalExecutor;</span>
+<span class="nc" id="L118">    }</span>
+
+    // Un-tested
+    /**
+     * @param rowKey
+     * @param columnKeys
+     * @param columnValues
+     * @param timeToLiveInSeconds ignored. Hbase allows a TTL per column family, not per column.
+     */
+    @Override
+    public void multiAdd(final T tenantId, final R rowKey, final C[] columnKeys, final V[] columnValues,
+            final Integer timeToLiveInSeconds, Timestamper overrideTimestamper) throws Exception {
+
+<span class="nc" id="L131">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();</span>
+<span class="nc" id="L134">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+
+<span class="nc" id="L136">            List&lt;Put&gt; puts = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            for (int i = 0; i &lt; columnKeys.length; i++) {</span>
+<span class="nc" id="L138">                byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKeys[i]);</span>
+<span class="nc" id="L139">                byte[] rawColumnValue = marshaller.toValueBytes(columnValues[i]);</span>
+<span class="nc" id="L140">                Put put = new Put(rawRowKey, timestamp);</span>
+<span class="nc" id="L141">                put.add(family, rawColumnKey, timestamp, rawColumnValue);</span>
+<span class="nc" id="L142">                puts.add(put);</span>
+            }
+<span class="nc" id="L144">            t.put(puts);</span>
+<span class="nc" id="L145">            t.flushCommits();</span>
+<span class="nc" id="L146">            counters.added(puts.size());</span>
+<span class="nc" id="L147">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L148">            LOG.error(&quot;Exception multiAdd to hbase. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; columnNames=&quot;</span>
+                    + columnKeys + &quot; columnValues=&quot; + columnValues, ex);
+<span class="nc" id="L150">            throw ex;</span>
+        } finally {
+<span class="nc" id="L152">            try {</span>
+<span class="nc" id="L153">                t.close();</span>
+<span class="nc" id="L154">            } catch (IOException e) {</span>
+<span class="nc" id="L155">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L156">            }</span>
+<span class="nc" id="L157">        }</span>
+
+<span class="nc" id="L159">    }</span>
+
+    @Override
+    public void multiRowsMultiAdd(final T tenantId, List&lt;RowColumValueTimestampAdd&lt;R, C, V&gt;&gt; multiAdd) throws Exception {
+
+<span class="nc" id="L164">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc" id="L166">            List&lt;Put&gt; puts = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            for (RowColumValueTimestampAdd&lt;R, C, V&gt; add : multiAdd) {</span>
+<span class="nc" id="L168">                final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, add.getRowKey());</span>
+<span class="nc" id="L169">                byte[] rawColumnKey = marshaller.toColumnKeyBytes(add.getColumnKey());</span>
+<span class="nc" id="L170">                byte[] rawColumnValue = marshaller.toValueBytes(add.getColumnValue());</span>
+<span class="nc" id="L171">                long timestamp = timestamper.get();</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                if (add.getOverrideTimestamper() != null) {</span>
+<span class="nc" id="L173">                    timestamp = add.getOverrideTimestamper().get();</span>
+                }
+
+<span class="nc" id="L176">                Put put = new Put(rawRowKey, timestamp);</span>
+<span class="nc" id="L177">                put.add(family, rawColumnKey, timestamp, rawColumnValue);</span>
+<span class="nc" id="L178">                puts.add(put);</span>
+<span class="nc" id="L179">            }</span>
+<span class="nc" id="L180">            t.put(puts);</span>
+<span class="nc" id="L181">            t.flushCommits();</span>
+<span class="nc" id="L182">            counters.added(puts.size());</span>
+<span class="nc" id="L183">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L184">            LOG.error(&quot;Exception multiAdd to hbase. customer=&quot; + tenantId + &quot; multiAdd=&quot; + multiAdd, ex);</span>
+<span class="nc" id="L185">            throw ex;</span>
+        } finally {
+<span class="nc" id="L187">            try {</span>
+<span class="nc" id="L188">                t.close();</span>
+<span class="nc" id="L189">            } catch (IOException e) {</span>
+<span class="nc" id="L190">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L191">            }</span>
+<span class="nc" id="L192">        }</span>
+
+<span class="nc" id="L194">    }</span>
+
+    @Override
+    public void multiRowsMultiAdd(List&lt;TenantRowColumValueTimestampAdd&lt;T, R, C, V&gt;&gt; multiAdd) throws Exception {
+
+<span class="nc" id="L199">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc" id="L201">            List&lt;Put&gt; puts = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            for (TenantRowColumValueTimestampAdd&lt;T, R, C, V&gt; add : multiAdd) {</span>
+<span class="nc" id="L203">                final byte[] rawRowKey = marshaller.toRowKeyBytes(add.getTenantId(), add.getRowKey());</span>
+<span class="nc" id="L204">                long timestamp = timestamper.get();</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                if (add.getOverrideTimestamper() != null) {</span>
+<span class="nc" id="L206">                    timestamp = add.getOverrideTimestamper().get();</span>
+                }
+
+<span class="nc" id="L209">                Put put = new Put(rawRowKey, timestamp);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                if (add.getColumnKey() != null) {</span>
+<span class="nc" id="L211">                    byte[] rawColumnKey = marshaller.toColumnKeyBytes(add.getColumnKey());</span>
+<span class="nc" id="L212">                    byte[] rawColumnValue = marshaller.toValueBytes(add.getColumnValue());</span>
+<span class="nc" id="L213">                    put.add(family, rawColumnKey, timestamp, rawColumnValue);</span>
+                }
+<span class="nc" id="L215">                puts.add(put);</span>
+<span class="nc" id="L216">            }</span>
+<span class="nc" id="L217">            t.put(puts);</span>
+<span class="nc" id="L218">            t.flushCommits();</span>
+<span class="nc" id="L219">            counters.added(puts.size());</span>
+<span class="nc" id="L220">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L221">            LOG.error(&quot;Exception multiAdd to hbase. multiAdd=&quot; + multiAdd, ex);</span>
+<span class="nc" id="L222">            throw ex;</span>
+        } finally {
+<span class="nc" id="L224">            try {</span>
+<span class="nc" id="L225">                t.close();</span>
+<span class="nc" id="L226">            } catch (IOException e) {</span>
+<span class="nc" id="L227">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L228">            }</span>
+<span class="nc" id="L229">        }</span>
+
+<span class="nc" id="L231">    }</span>
+
+    /**
+     * @param rowKey
+     * @param columnKey
+     * @param columnValue
+     * @param timeToLiveInSeconds ignored
+     */
+    @Override
+    public void add(final T tenantId, final R rowKey, final C columnKey, final V columnValue,
+            final Integer timeToLiveInSeconds, Timestamper overrideTimestamper) throws Exception {
+<span class="nc" id="L242">        add(tenantId, rowKey, columnKey, columnValue, null, timeToLiveInSeconds, overrideTimestamper, false);</span>
+<span class="nc" id="L243">    }</span>
+
+    @Override
+    public boolean addIfNotExists(final T tenantId, final R rowKey, final C columnKey, final V columnValue,
+            final Integer timeToLiveInSeconds, final Timestamper overrideTimestamper) throws Exception {
+<span class="nc" id="L248">        return add(tenantId, rowKey, columnKey, columnValue, null, timeToLiveInSeconds, overrideTimestamper, true);</span>
+    }
+
+    @Override
+    public boolean replaceIfEqualToExpected(T tenantId, R rowKey, C columnKey, V columnValue, V expectedValue,
+            Integer timeToLiveInSeconds, Timestamper overrideTimestamper) throws Exception {
+<span class="nc" id="L254">        return add(tenantId, rowKey, columnKey, columnValue, expectedValue, timeToLiveInSeconds, overrideTimestamper,</span>
+                true);
+    }
+
+    private boolean add(final T tenantId, final R rowKey, final C columnKey, final V columnValue, final V expectedValue,
+            final Integer timeToLiveInSeconds, Timestamper overrideTimestamper, boolean checkValue) throws Exception {
+
+<span class="nc" id="L261">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();</span>
+<span class="nc" id="L264">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+<span class="nc" id="L265">            final byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKey);</span>
+<span class="nc" id="L266">            final byte[] rawColumnValue = marshaller.toValueBytes(columnValue);</span>
+
+<span class="nc" id="L268">            Put put = new Put(rawRowKey, timestamp);</span>
+<span class="nc" id="L269">            put.add(family, rawColumnKey, timestamp, rawColumnValue);</span>
+
+            boolean added;
+<span class="nc bnc" id="L272" title="All 2 branches missed.">            if (checkValue) {</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                final byte[] rawExpectedValue = expectedValue != null ? marshaller.toValueBytes(expectedValue) : null;</span>
+<span class="nc" id="L274">                added = t.checkAndPut(rawRowKey, family, rawColumnKey, rawExpectedValue, put);</span>
+<span class="nc" id="L275">            } else {</span>
+<span class="nc" id="L276">                added = true;</span>
+<span class="nc" id="L277">                t.put(put);</span>
+            }
+<span class="nc" id="L279">            t.flushCommits();</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">            if (added) {</span>
+<span class="nc" id="L281">                counters.added(1);</span>
+            }
+            // if another thread's sending was slowed down, it removes that slow down by a notch
+<span class="nc" id="L284">            return added;</span>
+
+<span class="nc" id="L286">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+            // slows down sending from another thread
+<span class="nc" id="L288">            String columnValueAsString = columnValue.toString();</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">            if (columnValue instanceof byte[]) {</span>
+<span class="nc" id="L290">                columnValueAsString = toString((byte[]) columnValue, &quot;.&quot;);</span>
+            }
+<span class="nc" id="L292">            LOG.error(&quot;Exception writing to hbase. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; columName=&quot; + columnKey + &quot; columnValue=&quot;</span>
+                    + columnValueAsString, ex);
+<span class="nc" id="L294">            throw ex;</span>
+        } finally {
+<span class="nc" id="L296">            try {</span>
+<span class="nc" id="L297">                t.close();</span>
+<span class="nc" id="L298">            } catch (IOException e) {</span>
+<span class="nc" id="L299">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L300">            }</span>
+        }
+
+    }
+
+    String toString(byte[] strings, String delim) {
+<span class="nc" id="L306">        StringBuilder string = new StringBuilder();</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        for (int i = 0; i &lt; strings.length; i++) {</span>
+<span class="nc" id="L308">            string.append(String.valueOf(strings[i]));</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">            if (i &lt; strings.length - 1) {</span>
+<span class="nc" id="L310">                string.append(delim);</span>
+            }
+        }
+<span class="nc" id="L313">        return string.toString();</span>
+    }
+
+    /**
+     * Gets multiple columns from a row.
+     *
+     * @param tenantId cannot be null
+     * @param rowKey cannot be null
+     * @param columnKeys
+     * @param overrideNumberOfRetries
+     * @param overrideConsistency
+     * @return
+     */
+    @Override
+    public List&lt;V&gt; multiGet(T tenantId, R rowKey, C[] columnKeys, Integer overrideNumberOfRetries, Integer overrideConsistency) throws Exception {
+<span class="nc" id="L328">        List&lt;V&gt; got = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L329">        ColumnValueAndTimestamp&lt;C, V, Long&gt;[] entries = multiGetEntries(tenantId, rowKey, columnKeys, overrideNumberOfRetries, overrideConsistency);</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        if (entries == null) {</span>
+<span class="nc" id="L331">            return null;</span>
+        }
+<span class="nc bnc" id="L333" title="All 2 branches missed.">        for (ColumnValueAndTimestamp&lt;C, V, Long&gt; entry : entries) {</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">            if (entry == null) {</span>
+<span class="nc" id="L335">                got.add(null);</span>
+            } else {
+<span class="nc" id="L337">                got.add(entry.getValue());</span>
+            }
+        }
+<span class="nc" id="L340">        return got;</span>
+    }
+
+    @Override
+    public ColumnValueAndTimestamp&lt;C, V, Long&gt;[] multiGetEntries(T tenantId, R rowKey, C[] columnKeys, Integer overrideNumberOfRetries,
+            Integer overrideConsistency) throws Exception {
+
+<span class="nc" id="L347">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+
+<span class="nc" id="L350">            byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+<span class="nc" id="L351">            ColumnValueAndTimestamp&lt;C, V, Long&gt;[] got = null;</span>
+
+<span class="nc bnc" id="L353" title="All 2 branches missed.">            if (columnKeys != null) {</span>
+<span class="nc" id="L354">                Get get = new Get(rawRowKey);</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">                for (C columnKey : columnKeys) {</span>
+<span class="nc" id="L356">                    byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKey);</span>
+<span class="nc" id="L357">                    get.addColumn(family, rawColumnKey);</span>
+                }
+
+<span class="nc" id="L360">                Result result = t.get(get);</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">                if (result != null) {</span>
+<span class="nc" id="L362">                    got = new ColumnValueAndTimestamp[columnKeys.length];</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">                    for (int i = 0; i &lt; columnKeys.length; i++) {</span>
+<span class="nc" id="L364">                        C c = columnKeys[i];</span>
+<span class="nc" id="L365">                        byte[] rawColumnKey = marshaller.toColumnKeyBytes(c);</span>
+<span class="nc" id="L366">                        KeyValue mostRecent = result.getColumnLatest(family, rawColumnKey);</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                        if (mostRecent != null) {</span>
+<span class="nc" id="L368">                            V v = marshaller.fromValueBytes(mostRecent.getValue());</span>
+<span class="nc" id="L369">                            Long timestamp = mostRecent.getTimestamp();</span>
+<span class="nc" id="L370">                            got[i] = new ColumnValueAndTimestamp&lt;&gt;(columnKeys[i], v, timestamp);</span>
+                        }
+                    }
+                }
+<span class="nc" id="L374">            } else {</span>
+<span class="nc" id="L375">                Get get = new Get(rawRowKey);</span>
+<span class="nc" id="L376">                get.addFamily(family);</span>
+
+<span class="nc" id="L378">                Result result = t.get(get);</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">                if (result != null) {</span>
+<span class="nc" id="L380">                    got = new ColumnValueAndTimestamp[result.size()];</span>
+<span class="nc" id="L381">                    KeyValue[] raw = result.raw();</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">                    for (int i = 0; i &lt; raw.length; i++) {</span>
+<span class="nc" id="L383">                        KeyValue mostRecent = raw[i];</span>
+<span class="nc" id="L384">                        C c = marshaller.fromColumnKeyBytes(mostRecent.getQualifier());</span>
+<span class="nc" id="L385">                        V v = marshaller.fromValueBytes(mostRecent.getValue());</span>
+<span class="nc" id="L386">                        Long timestamp = mostRecent.getTimestamp();</span>
+<span class="nc" id="L387">                        got[i] = new ColumnValueAndTimestamp&lt;&gt;(c, v, timestamp);</span>
+                    }
+                }
+            }
+
+<span class="nc" id="L392">            counters.got(1);</span>
+<span class="nc" id="L393">            return got;</span>
+<span class="nc" id="L394">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L395">            LOG.error(&quot;Failed to retrieve keys. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; columnName=&quot; + columnKeys, ex);</span>
+<span class="nc" id="L396">            throw ex;</span>
+        } finally {
+<span class="nc" id="L398">            try {</span>
+<span class="nc" id="L399">                t.close();</span>
+<span class="nc" id="L400">            } catch (IOException e) {</span>
+<span class="nc" id="L401">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L402">            }</span>
+        }
+    }
+
+    /**
+     * Gets a single column from a row.
+     *
+     * @param rowKey
+     * @param columnKey
+     * @param overRideConsistency ignored
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public V get(final T tenantId, final R rowKey, final C columnKey, Integer overrideNumberOfRetries, Integer overRideConsistency) throws Exception {
+
+<span class="nc" id="L418">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc" id="L420">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+<span class="nc" id="L421">            final byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKey);</span>
+
+<span class="nc" id="L423">            Get get = new Get(rawRowKey);</span>
+<span class="nc" id="L424">            get.addColumn(family, rawColumnKey);</span>
+<span class="nc" id="L425">            Result result = t.get(get);</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">            if (result.isEmpty()) {</span>
+<span class="nc" id="L427">                return null;</span>
+            }
+<span class="nc" id="L429">            V v = marshaller.fromValueBytes(result.value());</span>
+<span class="nc" id="L430">            counters.got(1);</span>
+<span class="nc" id="L431">            return v;</span>
+<span class="nc" id="L432">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L433">            LOG.error(&quot;Failed to retrieve key. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; columnName=&quot; + columnKey, ex);</span>
+<span class="nc" id="L434">            throw ex;</span>
+        } finally {
+<span class="nc" id="L436">            try {</span>
+<span class="nc" id="L437">                t.close();</span>
+<span class="nc" id="L438">            } catch (IOException e) {</span>
+<span class="nc" id="L439">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L440">            }</span>
+        }
+    }
+
+    @Override
+    public void multiRemove(final T tenantId, final R rowKey, final C[] columnKeys, Timestamper overrideTimestamper) throws Exception {
+
+<span class="nc" id="L447">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc bnc" id="L449" title="All 2 branches missed.">            final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();</span>
+<span class="nc" id="L450">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+
+<span class="nc" id="L452">            List&lt;Delete&gt; deletes = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">            for (int i = 0; i &lt; columnKeys.length; i++) {</span>
+<span class="nc" id="L454">                byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKeys[i]);</span>
+<span class="nc" id="L455">                Delete delete = new Delete(rawRowKey, timestamp, null);</span>
+<span class="nc" id="L456">                delete.deleteColumns(family, rawColumnKey, timestamp);</span>
+<span class="nc" id="L457">                deletes.add(delete);</span>
+            }
+<span class="nc" id="L459">            t.delete(deletes);</span>
+<span class="nc" id="L460">            t.flushCommits();</span>
+<span class="nc" id="L461">            counters.removed(deletes.size());</span>
+
+<span class="nc" id="L463">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L464">            LOG.error(&quot;Exception multiAdd to hbase. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; columnNames=&quot; + columnKeys, ex);</span>
+<span class="nc" id="L465">            throw ex;</span>
+        } finally {
+<span class="nc" id="L467">            try {</span>
+<span class="nc" id="L468">                t.close();</span>
+<span class="nc" id="L469">            } catch (IOException e) {</span>
+<span class="nc" id="L470">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L471">            }</span>
+<span class="nc" id="L472">        }</span>
+<span class="nc" id="L473">    }</span>
+
+    @Override
+    public void multiRowsMultiRemove(final T tenantId, List&lt;RowColumnTimestampRemove&lt;R, C&gt;&gt; multiRemove) throws Exception {
+
+<span class="nc" id="L478">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+
+<span class="nc" id="L481">            List&lt;Delete&gt; deletes = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">            for (RowColumnTimestampRemove&lt;R, C&gt; remove : multiRemove) {</span>
+<span class="nc" id="L483">                byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, remove.getRowKey());</span>
+<span class="nc" id="L484">                byte[] rawColumnKey = marshaller.toColumnKeyBytes(remove.getColumnKey());</span>
+<span class="nc" id="L485">                long timestamp = timestamper.get();</span>
+<span class="nc bnc" id="L486" title="All 2 branches missed.">                if (remove.getOverrideTimestamper() != null) {</span>
+<span class="nc" id="L487">                    timestamp = remove.getOverrideTimestamper().get();</span>
+                }
+<span class="nc" id="L489">                Delete delete = new Delete(rawRowKey, timestamp, null);</span>
+<span class="nc" id="L490">                delete.deleteColumns(family, rawColumnKey, timestamp);</span>
+<span class="nc" id="L491">                deletes.add(delete);</span>
+<span class="nc" id="L492">            }</span>
+<span class="nc" id="L493">            t.delete(deletes);</span>
+<span class="nc" id="L494">            t.flushCommits();</span>
+<span class="nc" id="L495">            counters.removed(deletes.size());</span>
+
+<span class="nc" id="L497">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L498">            LOG.error(&quot;Exception multiAdd to hbase. customer=&quot; + tenantId + &quot; multiRemove=&quot; + multiRemove, ex);</span>
+<span class="nc" id="L499">            throw ex;</span>
+        } finally {
+<span class="nc" id="L501">            try {</span>
+<span class="nc" id="L502">                t.close();</span>
+<span class="nc" id="L503">            } catch (IOException e) {</span>
+<span class="nc" id="L504">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L505">            }</span>
+<span class="nc" id="L506">        }</span>
+<span class="nc" id="L507">    }</span>
+
+    @Override
+    public void multiRowsMultiRemove(List&lt;TenantRowColumnTimestampRemove&lt;T, R, C&gt;&gt; multiRemove) throws Exception {
+
+<span class="nc" id="L512">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+
+<span class="nc" id="L515">            List&lt;Delete&gt; deletes = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">            for (TenantRowColumnTimestampRemove&lt;T, R, C&gt; remove : multiRemove) {</span>
+<span class="nc" id="L517">                byte[] rawRowKey = marshaller.toRowKeyBytes(remove.getTenantId(), remove.getRowKey());</span>
+<span class="nc" id="L518">                byte[] rawColumnKey = marshaller.toColumnKeyBytes(remove.getColumnKey());</span>
+<span class="nc" id="L519">                long timestamp = timestamper.get();</span>
+<span class="nc bnc" id="L520" title="All 2 branches missed.">                if (remove.getOverrideTimestamper() != null) {</span>
+<span class="nc" id="L521">                    timestamp = remove.getOverrideTimestamper().get();</span>
+                }
+<span class="nc" id="L523">                Delete delete = new Delete(rawRowKey, timestamp, null);</span>
+<span class="nc" id="L524">                delete.deleteColumns(family, rawColumnKey, timestamp);</span>
+<span class="nc" id="L525">                deletes.add(delete);</span>
+<span class="nc" id="L526">            }</span>
+<span class="nc" id="L527">            t.delete(deletes);</span>
+<span class="nc" id="L528">            t.flushCommits();</span>
+<span class="nc" id="L529">            counters.removed(deletes.size());</span>
+
+<span class="nc" id="L531">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L532">            LOG.error(&quot;Exception multiAdd to hbase. multiRemove=&quot; + multiRemove, ex);</span>
+<span class="nc" id="L533">            throw ex;</span>
+        } finally {
+<span class="nc" id="L535">            try {</span>
+<span class="nc" id="L536">                t.close();</span>
+<span class="nc" id="L537">            } catch (IOException e) {</span>
+<span class="nc" id="L538">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L539">            }</span>
+<span class="nc" id="L540">        }</span>
+<span class="nc" id="L541">    }</span>
+
+    /**
+     * @param rowKey
+     * @param columnKey
+     * @throws Exception
+     */
+    @Override
+    public void remove(final T tenantId, final R rowKey, final C columnKey, Timestamper overrideTimestamper) throws Exception {
+<span class="nc bnc" id="L550" title="All 2 branches missed.">        if (columnKey == null) {</span>
+<span class="nc" id="L551">            return;</span>
+        }
+
+<span class="nc" id="L554">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc bnc" id="L556" title="All 2 branches missed.">            final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();</span>
+<span class="nc" id="L557">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+<span class="nc" id="L558">            final byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKey);</span>
+
+<span class="nc" id="L560">            Delete delete = new Delete(rawRowKey, timestamp, null);</span>
+<span class="nc" id="L561">            delete.deleteColumns(family, rawColumnKey, timestamp);</span>
+
+<span class="nc" id="L563">            t.delete(delete);</span>
+<span class="nc" id="L564">            t.flushCommits();</span>
+<span class="nc" id="L565">            counters.removed(1);</span>
+
+<span class="nc" id="L567">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L568">            LOG.error(&quot;Failed to remove. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; columnName=&quot; + columnKey, ex);</span>
+<span class="nc" id="L569">            throw ex;</span>
+        } finally {
+<span class="nc" id="L571">            try {</span>
+<span class="nc" id="L572">                t.close();</span>
+<span class="nc" id="L573">            } catch (IOException e) {</span>
+<span class="nc" id="L574">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L575">            }</span>
+<span class="nc" id="L576">        }</span>
+
+<span class="nc" id="L578">    }</span>
+
+    /**
+     * @param tenantId
+     * @param rowKey
+     * @param startColumnKey
+     * @param maxCount if null read entire column
+     * @param batchSize
+     * @param reversed
+     * @param overrideNumberOfRetries ignored
+     * @param overrideConsistency ignored
+     * @param callback
+     */
+    @Override
+    public void getKeys(final T tenantId, R rowKey, C startColumnKey, Long maxCount, int batchSize, boolean reversed, Integer overrideNumberOfRetries,
+            Integer overrideConsistency, CallbackStream&lt;C&gt; callback) throws Exception {
+<span class="nc" id="L594">        get(tenantId, rowKey, startColumnKey, maxCount, batchSize, reversed, overrideNumberOfRetries, overrideConsistency, callback,</span>
+<span class="nc" id="L595">                new ValueStoreMarshaller&lt;KeyValue, C&gt;() {</span>
+                    @Override
+                    public C marshall(KeyValue keyValue) throws Exception {
+<span class="nc" id="L598">                        return marshaller.fromColumnKeyBytes(keyValue.getQualifier());</span>
+                    }
+                });
+<span class="nc" id="L601">    }</span>
+
+    /**
+     * @param tenantId
+     * @param rowKey
+     * @param startColumnKey
+     * @param maxCount if null read entire column
+     * @param batchSize
+     * @param reversed
+     * @param overrideNumberOfRetries ignored
+     * @param overrideConsistency ignored
+     * @param callback
+     */
+    @Override
+    public void getValues(final T tenantId, R rowKey, C startColumnKey, Long maxCount, int batchSize, boolean reversed, Integer overrideNumberOfRetries,
+            Integer overrideConsistency, CallbackStream&lt;V&gt; callback) throws Exception {
+<span class="nc" id="L617">        get(tenantId, rowKey, startColumnKey, maxCount, batchSize, reversed, overrideNumberOfRetries, overrideConsistency, callback,</span>
+<span class="nc" id="L618">                new ValueStoreMarshaller&lt;KeyValue, V&gt;() {</span>
+                    @Override
+                    public V marshall(KeyValue keyValue) throws Exception {
+<span class="nc" id="L621">                        return marshaller.fromValueBytes(keyValue.getValue());</span>
+                    }
+                });
+<span class="nc" id="L624">    }</span>
+
+    /**
+     * @param &lt;TS&gt;
+     * @param tenantId
+     * @param rowKey
+     * @param startColumnKey
+     * @param maxCount if null read entire column
+     * @param batchSize
+     * @param reversed
+     * @param overrideNumberOfRetries ignored
+     * @param overrideConsistency ignored
+     * @param callback
+     */
+    @Override
+    public &lt;TS&gt; void getEntrys(final T tenantId, R rowKey, C startColumnKey, Long maxCount, int batchSize, boolean reversed,
+            Integer overrideNumberOfRetries, Integer overrideConsistency, CallbackStream&lt;ColumnValueAndTimestamp&lt;C, V, TS&gt;&gt; callback) throws Exception {
+
+<span class="nc" id="L642">        get(tenantId, rowKey, startColumnKey, maxCount, batchSize, reversed, overrideNumberOfRetries, overrideConsistency, callback,</span>
+<span class="nc" id="L643">                new ValueStoreMarshaller&lt;KeyValue, ColumnValueAndTimestamp&lt;C, V, TS&gt;&gt;() {</span>
+                    @Override
+                    public ColumnValueAndTimestamp&lt;C, V, TS&gt; marshall(KeyValue keyValue) throws Exception {
+<span class="nc" id="L646">                        Object t = keyValue.getTimestamp();</span>
+<span class="nc" id="L647">                        return new ColumnValueAndTimestamp&lt;&gt;(marshaller.fromColumnKeyBytes(keyValue.getQualifier()), marshaller.fromValueBytes(keyValue</span>
+                                        .getValue()), (TS) t);
+                    }
+                });
+<span class="nc" id="L651">    }</span>
+
+    /**
+     * @param tenantId
+     * @param rowKey
+     * @param startColumnKey
+     * @param maxCount
+     * @param batchSize
+     * @param reversed
+     * @param overrideNumberOfRetries ignored
+     * @param overrideConsistency ignored
+     * @param callback
+     * @param marshall
+     * @param &lt;K&gt;
+     */
+    private &lt;K&gt; void get(final T tenantId, final R rowKey, final C startColumnKey, final Long maxCount, int batchSize,
+            final boolean reversed, Integer overrideNumberOfRetries, Integer overrideConsistency,
+            final CallbackStream&lt;K&gt; callback, final ValueStoreMarshaller&lt;KeyValue, K&gt; marshall) throws Exception {
+
+<span class="nc bnc" id="L670" title="All 2 branches missed.">        if (reversed) {</span>
+<span class="nc" id="L671">            throw new RuntimeException(&quot;Not supported by hbase&quot;);</span>
+        }
+
+<span class="nc" id="L674">        final MutableLong gotCount = new MutableLong();</span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">        final int desiredBatchSize = (maxCount == null) ? batchSize : (int) Math.min(maxCount, batchSize);</span>
+<span class="nc" id="L676">        final int marshalBatchSize = 24; //TODO expose to config</span>
+<span class="nc" id="L677">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc" id="L679">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+<span class="nc bnc" id="L680" title="All 2 branches missed.">            final byte[] startColumnKeyBytes = (startColumnKey == null) ? null : marshaller.toColumnKeyBytes(startColumnKey);</span>
+
+<span class="nc" id="L682">            Get get = new Get(rawRowKey);</span>
+<span class="nc" id="L683">            get.addFamily(family);</span>
+<span class="nc" id="L684">            get.setMaxVersions(1);</span>
+<span class="nc" id="L685">            Scan scan = new Scan(get);</span>
+<span class="nc" id="L686">            scan.setBatch(desiredBatchSize);</span>
+<span class="nc bnc" id="L687" title="All 2 branches missed.">            if (startColumnKeyBytes != null) {</span>
+<span class="nc" id="L688">                Filter columnRangeFilter = new ColumnRangeFilter(startColumnKeyBytes, true, null, true);</span>
+<span class="nc" id="L689">                scan.setFilter(columnRangeFilter);</span>
+            }
+<span class="nc" id="L691">            ResultScanner resultScanner = t.getScanner(scan);</span>
+<span class="nc" id="L692">            List&lt;Future&lt;K&gt;&gt; marshalFutures = Lists.newArrayListWithCapacity(marshalBatchSize);</span>
+            EOS:
+<span class="nc bnc" id="L694" title="All 2 branches missed.">            for (Result result : resultScanner) {</span>
+
+<span class="nc bnc" id="L696" title="All 2 branches missed.">                if (result.isEmpty()) {</span>
+<span class="nc" id="L697">                    continue;</span>
+                }
+<span class="nc" id="L699">                counters.sliced(1);</span>
+
+<span class="nc bnc" id="L701" title="All 2 branches missed.">                for (final KeyValue keyValue : result.list()) {</span>
+<span class="nc" id="L702">                    marshalFutures.add(marshalExecutor.submit(new Callable&lt;K&gt;() {</span>
+                        @Override
+                        public K call() throws Exception {
+<span class="nc" id="L705">                            return marshall.marshall(keyValue);</span>
+                        }
+                    }));
+
+<span class="nc bnc" id="L709" title="All 2 branches missed.">                    if (marshalFutures.size() == marshalBatchSize) {</span>
+<span class="nc bnc" id="L710" title="All 2 branches missed.">                        if (completeFutureCallbacks(maxCount, callback, gotCount, marshalFutures)) {</span>
+<span class="nc" id="L711">                            marshalFutures.clear();</span>
+<span class="nc" id="L712">                            break EOS;</span>
+                        } else {
+<span class="nc" id="L714">                            marshalFutures.clear();</span>
+                        }
+                    }
+<span class="nc" id="L717">                }</span>
+<span class="nc" id="L718">            }</span>
+<span class="nc bnc" id="L719" title="All 2 branches missed.">            if (!marshalFutures.isEmpty()) {</span>
+<span class="nc" id="L720">                completeFutureCallbacks(maxCount, callback, gotCount, marshalFutures);</span>
+            }
+            // EOS end of stream
+            try {
+<span class="nc" id="L724">                callback.callback(null);</span>
+<span class="nc" id="L725">            } catch (Exception ex) {</span>
+<span class="nc" id="L726">                throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L727">            }</span>
+
+<span class="nc" id="L729">        } catch (Exception ex) {</span>
+<span class="nc" id="L730">            LOG.error(&quot;Failed to get slice. customer=&quot; + tenantId + &quot; key=&quot; + rowKey + &quot; start=&quot; + startColumnKey, ex);</span>
+<span class="nc" id="L731">            throw ex;</span>
+        } finally {
+<span class="nc" id="L733">            try {</span>
+<span class="nc" id="L734">                t.close();</span>
+<span class="nc" id="L735">            } catch (IOException e) {</span>
+<span class="nc" id="L736">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L737">            }</span>
+<span class="nc" id="L738">        }</span>
+<span class="nc" id="L739">    }</span>
+
+    private &lt;K&gt; boolean completeFutureCallbacks(Long maxCount, CallbackStream&lt;K&gt; callback, MutableLong gotCount, List&lt;Future&lt;K&gt;&gt; marshalFutures)
+        throws InterruptedException, ExecutionException {
+
+<span class="nc bnc" id="L744" title="All 2 branches missed.">        for (Future&lt;K&gt; future : marshalFutures) {</span>
+<span class="nc" id="L745">            K marshalled = future.get();</span>
+<span class="nc bnc" id="L746" title="All 2 branches missed.">            if (marshalled == null) {</span>
+<span class="nc" id="L747">                continue;</span>
+            }
+
+            try {
+<span class="nc" id="L751">                K returned = callback.callback(marshalled);</span>
+<span class="nc bnc" id="L752" title="All 2 branches missed.">                if (marshalled != returned) {</span>
+<span class="nc" id="L753">                    return true;</span>
+                }
+<span class="nc" id="L755">                gotCount.increment();</span>
+<span class="nc bnc" id="L756" title="All 2 branches missed.">                if (maxCount != null) {</span>
+<span class="nc bnc" id="L757" title="All 2 branches missed.">                    if (gotCount.longValue() &gt;= maxCount) {</span>
+<span class="nc" id="L758">                        return true;</span>
+                    }
+                }
+<span class="nc" id="L761">            } catch (Exception ex) {</span>
+<span class="nc" id="L762">                throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L763">            }</span>
+<span class="nc" id="L764">        }</span>
+<span class="nc" id="L765">        return false;</span>
+    }
+
+    /**
+     * @param batchSize
+     * @param overrideNumberOfRetries ignored
+     * @param callback
+     */
+    @Override
+    public void getAllRowKeys(int batchSize, Integer overrideNumberOfRetries, CallbackStream&lt;TenantIdAndRow&lt;T, R&gt;&gt; callback) throws Exception {
+<span class="nc" id="L775">        getRowKeys(null, null, null, batchSize, overrideNumberOfRetries, callback);</span>
+<span class="nc" id="L776">    }</span>
+
+    /**
+     *
+     * @param tenantId
+     * @param startRowKey
+     * @param stopRowKey
+     * @param batchSize
+     * @param overrideNumberOfRetries
+     * @param callback
+     * @throws Exception
+     */
+    @Override
+    public void getRowKeys(T tenantId, R startRowKey, R stopRowKey, int batchSize, Integer overrideNumberOfRetries,
+            CallbackStream&lt;TenantIdAndRow&lt;T, R&gt;&gt; callback) throws Exception {
+<span class="nc" id="L791">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+
+<span class="nc" id="L794">            Scan scan = new Scan();</span>
+<span class="nc bnc" id="L795" title="All 2 branches missed.">            if (tenantId != null) {</span>
+<span class="nc bnc" id="L796" title="All 2 branches missed.">                if (startRowKey != null) {</span>
+<span class="nc" id="L797">                    scan.setStartRow(marshaller.toRowKeyBytes(tenantId, startRowKey));</span>
+                }
+<span class="nc bnc" id="L799" title="All 2 branches missed.">                if (stopRowKey != null) {</span>
+<span class="nc" id="L800">                    scan.setStopRow(marshaller.toRowKeyBytes(tenantId, stopRowKey));</span>
+                }
+            }
+<span class="nc" id="L803">            scan.setBatch(batchSize);</span>
+<span class="nc" id="L804">            ResultScanner resultScanner = t.getScanner(scan);</span>
+            EOS:
+<span class="nc bnc" id="L806" title="All 2 branches missed.">            for (Result result : resultScanner) {</span>
+<span class="nc bnc" id="L807" title="All 2 branches missed.">                if (result.isEmpty()) {</span>
+<span class="nc" id="L808">                    continue;</span>
+                }
+<span class="nc bnc" id="L810" title="All 2 branches missed.">                for (KeyValue keyValue : result.list()) {</span>
+                    try {
+<span class="nc" id="L812">                        byte[] rawRowKey = keyValue.getRow();</span>
+<span class="nc" id="L813">                        TenantIdAndRow&lt;T, R&gt; entry = marshaller.fromRowKeyBytes(rawRowKey);</span>
+                        try {
+<span class="nc bnc" id="L815" title="All 2 branches missed.">                            if (callback.callback(entry) != entry) {</span>
+                                // stop stream requested
+<span class="nc" id="L817">                                break;</span>
+                            }
+<span class="nc" id="L819">                        } catch (Exception ex) {</span>
+<span class="nc" id="L820">                            throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L821">                        }</span>
+<span class="nc" id="L822">                    } catch (Exception x) {</span>
+<span class="nc" id="L823">                        LOG.error(&quot;unable to handle keySlice.&quot;, x);</span>
+<span class="nc" id="L824">                    }</span>
+<span class="nc" id="L825">                }</span>
+<span class="nc" id="L826">            }</span>
+            // EOS end of stream
+            try {
+<span class="nc" id="L829">                callback.callback(null);</span>
+<span class="nc" id="L830">            } catch (Exception ex) {</span>
+<span class="nc" id="L831">                throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L832">            }</span>
+
+<span class="nc" id="L834">        } catch (Exception ex) {</span>
+<span class="nc" id="L835">            throw ex;</span>
+        } finally {
+<span class="nc" id="L837">            try {</span>
+<span class="nc" id="L838">                t.close();</span>
+<span class="nc" id="L839">            } catch (IOException e) {</span>
+<span class="nc" id="L840">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L841">            }</span>
+<span class="nc" id="L842">        }</span>
+<span class="nc" id="L843">    }</span>
+
+    @Override
+    public void removeRow(final T tenantId, final R rowKey, final Timestamper overrideTimestamper) throws Exception {
+
+<span class="nc" id="L848">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc bnc" id="L850" title="All 2 branches missed.">            final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();</span>
+<span class="nc" id="L851">            final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);</span>
+
+<span class="nc" id="L853">            Delete delete = new Delete(rawRowKey, timestamp, null);</span>
+<span class="nc" id="L854">            delete.setTimestamp(timestamp);</span>
+<span class="nc" id="L855">            t.delete(delete);</span>
+<span class="nc" id="L856">            t.flushCommits();</span>
+<span class="nc" id="L857">            counters.removed(1);</span>
+<span class="nc" id="L858">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L859">            LOG.error(&quot;Failed to remove. customer=&quot; + tenantId + &quot; key=&quot; + rowKey, ex);</span>
+<span class="nc" id="L860">            throw ex;</span>
+        } finally {
+<span class="nc" id="L862">            try {</span>
+<span class="nc" id="L863">                t.close();</span>
+<span class="nc" id="L864">            } catch (IOException e) {</span>
+<span class="nc" id="L865">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L866">            }</span>
+<span class="nc" id="L867">        }</span>
+<span class="nc" id="L868">    }</span>
+
+    /**
+     * Returns a List containing the values for a specified column for multiple rows. If a row did not have a value for that column (or if the row does not
+     * exist), a null entry is inserted in the list instead.
+     *
+     * @param tenantId
+     * @param rowKeys
+     * @param columnKey
+     * @param overrideNumberOfRetries
+     * @param overrideConsistency
+     * @return
+     */
+    @Override
+    public List&lt;V&gt; multiRowGet(T tenantId, List&lt;R&gt; rowKeys, C columnKey, Integer overrideNumberOfRetries, Integer overrideConsistency) throws Exception {
+<span class="nc" id="L883">        List&lt;Get&gt; gets = new ArrayList&lt;&gt;(rowKeys.size());</span>
+
+<span class="nc" id="L885">        byte[] rawColumnKey = null;</span>
+        try {
+<span class="nc" id="L887">            rawColumnKey = marshaller.toColumnKeyBytes(columnKey);</span>
+
+<span class="nc bnc" id="L889" title="All 2 branches missed.">            for (R rowKey : rowKeys) {</span>
+<span class="nc" id="L890">                Get get = new Get(marshaller.toRowKeyBytes(tenantId, rowKey));</span>
+<span class="nc" id="L891">                get.addColumn(family, rawColumnKey);</span>
+<span class="nc" id="L892">                gets.add(get);</span>
+<span class="nc" id="L893">            }</span>
+<span class="nc" id="L894">        } catch (Exception e) {</span>
+<span class="nc" id="L895">            throw e;</span>
+<span class="nc" id="L896">        }</span>
+
+<span class="nc" id="L898">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc" id="L900">            List&lt;V&gt; values = new ArrayList&lt;&gt;(rowKeys.size());</span>
+
+<span class="nc" id="L902">            Result[] results = t.get(gets);</span>
+
+<span class="nc bnc" id="L904" title="All 2 branches missed.">            for (Result result : results) {</span>
+<span class="nc bnc" id="L905" title="All 2 branches missed.">                if (!result.isEmpty()) {</span>
+<span class="nc" id="L906">                    values.add(marshaller.fromValueBytes(result.value()));</span>
+                } else {
+<span class="nc" id="L908">                    values.add(null);</span>
+                }
+<span class="nc" id="L910">                counters.got(1);</span>
+            }
+
+<span class="nc" id="L913">            return values;</span>
+<span class="nc" id="L914">        } catch (IOException | RowColumnValueStoreMarshallerException ex) {</span>
+<span class="nc" id="L915">            LOG.error(&quot;Failed to retrieve key. customer=&quot; + tenantId + &quot; keys=&quot; + rowKeys + &quot; columnName=&quot; + columnKey, ex);</span>
+<span class="nc" id="L916">            throw ex;</span>
+        } finally {
+<span class="nc" id="L918">            try {</span>
+<span class="nc" id="L919">                t.close();</span>
+<span class="nc" id="L920">            } catch (IOException e) {</span>
+<span class="nc" id="L921">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L922">            }</span>
+        }
+    }
+
+    /**
+     * Returns a List containing the values for specified columns for multiple rows (as a map from column to its value). If a row does not exist, a null entry
+     * is inserted in the list instead. If there's no value for a specific column and a specific row, there would be no entry in the corresponding map.
+     *
+     * @param tenantId
+     * @param rowKeys
+     * @param columnKeys
+     * @param overrideNumberOfRetries
+     * @param overrideConsistency
+     * @return
+     */
+    @Override
+    public List&lt;Map&lt;C, V&gt;&gt; multiRowMultiGet(T tenantId, List&lt;R&gt; rowKeys, List&lt;C&gt; columnKeys, Integer overrideNumberOfRetries, Integer overrideConsistency)
+            throws Exception {
+<span class="nc" id="L940">        List&lt;Get&gt; gets = new ArrayList&lt;&gt;(rowKeys.size());</span>
+
+        Map&lt;ByteBuffer, C&gt; rawColumnKeys;
+        try {
+<span class="nc" id="L944">            rawColumnKeys = new HashMap&lt;&gt;(columnKeys.size());</span>
+<span class="nc bnc" id="L945" title="All 2 branches missed.">            for (C columnKey : columnKeys) {</span>
+<span class="nc" id="L946">                rawColumnKeys.put(ByteBuffer.wrap(marshaller.toColumnKeyBytes(columnKey)), columnKey);</span>
+<span class="nc" id="L947">            }</span>
+<span class="nc bnc" id="L948" title="All 2 branches missed.">            for (R rowKey : rowKeys) {</span>
+<span class="nc" id="L949">                Get get = new Get(marshaller.toRowKeyBytes(tenantId, rowKey));</span>
+<span class="nc bnc" id="L950" title="All 2 branches missed.">                for (ByteBuffer rawColumnKey : rawColumnKeys.keySet()) {</span>
+<span class="nc" id="L951">                    get.addColumn(family, rawColumnKey.array());</span>
+<span class="nc" id="L952">                }</span>
+<span class="nc" id="L953">                gets.add(get);</span>
+<span class="nc" id="L954">            }</span>
+<span class="nc" id="L955">        } catch (Exception e) {</span>
+<span class="nc" id="L956">            throw e;</span>
+<span class="nc" id="L957">        }</span>
+
+<span class="nc" id="L959">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+<span class="nc" id="L961">            List&lt;Map&lt;C, V&gt;&gt; values = new ArrayList&lt;&gt;(rowKeys.size());</span>
+
+<span class="nc" id="L963">            Result[] results = t.get(gets);</span>
+
+<span class="nc bnc" id="L965" title="All 2 branches missed.">            for (Result result : results) {</span>
+<span class="nc bnc" id="L966" title="All 2 branches missed.">                if (!result.isEmpty()) {</span>
+<span class="nc" id="L967">                    Map&lt;C, V&gt; map = new HashMap&lt;&gt;(columnKeys.size());</span>
+<span class="nc" id="L968">                    values.add(map);</span>
+<span class="nc bnc" id="L969" title="All 2 branches missed.">                    for (KeyValue keyValue : result.list()) {</span>
+<span class="nc" id="L970">                        byte[] rawColumnKey = keyValue.getQualifier();</span>
+<span class="nc" id="L971">                        map.put(rawColumnKeys.get(ByteBuffer.wrap(rawColumnKey)), marshaller.fromValueBytes(keyValue.getValue()));</span>
+<span class="nc" id="L972">                    }</span>
+<span class="nc" id="L973">                } else {</span>
+<span class="nc" id="L974">                    values.add(null);</span>
+                }
+<span class="nc" id="L976">                counters.got(1);</span>
+            }
+
+<span class="nc" id="L979">            return values;</span>
+<span class="nc" id="L980">        } catch (IOException | RowColumnValueStoreMarshallerException ex) {</span>
+<span class="nc" id="L981">            LOG.error(&quot;Failed to retrieve key. customer=&quot; + tenantId + &quot; keys=&quot; + rowKeys + &quot; columnNames=&quot; + columnKeys, ex);</span>
+<span class="nc" id="L982">            throw ex;</span>
+        } finally {
+<span class="nc" id="L984">            try {</span>
+<span class="nc" id="L985">                t.close();</span>
+<span class="nc" id="L986">            } catch (IOException e) {</span>
+<span class="nc" id="L987">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L988">            }</span>
+        }
+    }
+
+    @Override
+    public &lt;TS&gt; void multiRowGetAll(T tenantId, List&lt;KeyedColumnValueCallbackStream&lt;R, C, V, TS&gt;&gt; rowKeyCallbackStreamPairs) throws Exception {
+<span class="nc" id="L994">        List&lt;Get&gt; gets = new ArrayList&lt;&gt;(rowKeyCallbackStreamPairs.size());</span>
+        try {
+<span class="nc bnc" id="L996" title="All 2 branches missed.">            for (KeyedColumnValueCallbackStream&lt;R, C, V, TS&gt; pair : rowKeyCallbackStreamPairs) {</span>
+<span class="nc" id="L997">                Get get = new Get(marshaller.toRowKeyBytes(tenantId, pair.getKey()));</span>
+<span class="nc" id="L998">                get.addFamily(family);</span>
+<span class="nc" id="L999">                get.setMaxVersions(1);</span>
+<span class="nc" id="L1000">                gets.add(get);</span>
+<span class="nc" id="L1001">            }</span>
+
+<span class="nc" id="L1003">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L1004">            throw ex;</span>
+<span class="nc" id="L1005">        }</span>
+
+<span class="nc" id="L1007">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+            //if this eagerly pulls back result values, this is an OOM waiting to happen
+<span class="nc" id="L1010">            Result[] results = t.get(gets);</span>
+
+<span class="nc bnc" id="L1012" title="All 2 branches missed.">            for (int i = 0; i &lt; results.length; i++) {</span>
+<span class="nc" id="L1013">                Result result = results[i];</span>
+<span class="nc" id="L1014">                CallbackStream&lt;ColumnValueAndTimestamp&lt;C, V, TS&gt;&gt; callbackStream = rowKeyCallbackStreamPairs.get(i).getCallbackStream();</span>
+
+<span class="nc bnc" id="L1016" title="All 4 branches missed.">                if (result == null || result.isEmpty()) {</span>
+                    //eos
+                    try {
+<span class="nc" id="L1019">                        callbackStream.callback(null);</span>
+<span class="nc" id="L1020">                    } catch (Exception ex) {</span>
+<span class="nc" id="L1021">                        throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L1022">                    }</span>
+                } else {
+<span class="nc bnc" id="L1024" title="All 2 branches missed.">                    for (KeyValue keyValue : result.list()) {</span>
+<span class="nc" id="L1025">                        C fromColumnKeyBytes = marshaller.fromColumnKeyBytes(keyValue.getQualifier());</span>
+<span class="nc" id="L1026">                        V fromValueBytes = marshaller.fromValueBytes(keyValue.getValue());</span>
+
+                        try {
+<span class="nc" id="L1029">                            ColumnValueAndTimestamp&lt;C, V, TS&gt; cvat = new ColumnValueAndTimestamp&lt;&gt;(</span>
+                                fromColumnKeyBytes, fromValueBytes,
+                                (TS) (Object) keyValue.getTimestamp());
+<span class="nc bnc" id="L1032" title="All 2 branches missed.">                            if (callbackStream.callback(cvat) != cvat) {</span>
+<span class="nc" id="L1033">                                break;</span>
+                            }
+<span class="nc" id="L1035">                        } catch (Exception ex) {</span>
+<span class="nc" id="L1036">                            throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L1037">                        }</span>
+
+<span class="nc" id="L1039">                    }</span>
+                    try {
+<span class="nc" id="L1041">                        callbackStream.callback(null);</span>
+<span class="nc" id="L1042">                    } catch (Exception ex) {</span>
+<span class="nc" id="L1043">                        throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L1044">                    }</span>
+<span class="nc" id="L1045">                    counters.got(1);</span>
+                }
+            }
+
+<span class="nc" id="L1049">        } catch (Exception ex) {</span>
+<span class="nc" id="L1050">            LOG.error(&quot;Failed to retrieve key. customer=&quot; + tenantId + &quot; keys=&quot; + rowKeyCallbackStreamPairs + &quot; (all columns)&quot;, ex);</span>
+<span class="nc" id="L1051">            throw ex;</span>
+        } finally {
+<span class="nc" id="L1053">            try {</span>
+<span class="nc" id="L1054">                t.close();</span>
+<span class="nc" id="L1055">            } catch (IOException e) {</span>
+<span class="nc" id="L1056">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L1057">            }</span>
+<span class="nc" id="L1058">        }</span>
+<span class="nc" id="L1059">    }</span>
+
+    @Override
+    public &lt;TS&gt; void multiRowGetAll(List&lt;TenantKeyedColumnValueCallbackStream&lt;T, R, C, V, TS&gt;&gt; rowKeyCallbackStreamPairs) throws Exception {
+<span class="nc" id="L1063">        List&lt;Get&gt; gets = new ArrayList&lt;&gt;(rowKeyCallbackStreamPairs.size());</span>
+        try {
+<span class="nc bnc" id="L1065" title="All 2 branches missed.">            for (TenantKeyedColumnValueCallbackStream&lt;T, R, C, V, TS&gt; pair : rowKeyCallbackStreamPairs) {</span>
+<span class="nc" id="L1066">                Get get = new Get(marshaller.toRowKeyBytes(pair.getTenantId(), pair.getKey()));</span>
+<span class="nc" id="L1067">                get.addFamily(family);</span>
+<span class="nc" id="L1068">                get.setMaxVersions(1);</span>
+<span class="nc" id="L1069">                gets.add(get);</span>
+<span class="nc" id="L1070">            }</span>
+
+<span class="nc" id="L1072">        } catch (RowColumnValueStoreMarshallerException | IOException ex) {</span>
+<span class="nc" id="L1073">            throw ex;</span>
+<span class="nc" id="L1074">        }</span>
+
+<span class="nc" id="L1076">        HTableInterface t = tablePool.getTable(table);</span>
+        try {
+            //if this eagerly pulls back result values, this is an OOM waiting to happen
+<span class="nc" id="L1079">            Result[] results = t.get(gets);</span>
+
+<span class="nc bnc" id="L1081" title="All 2 branches missed.">            for (int i = 0; i &lt; results.length; i++) {</span>
+<span class="nc" id="L1082">                Result result = results[i];</span>
+<span class="nc" id="L1083">                CallbackStream&lt;ColumnValueAndTimestamp&lt;C, V, TS&gt;&gt; callbackStream = rowKeyCallbackStreamPairs.get(i).getCallbackStream();</span>
+
+<span class="nc bnc" id="L1085" title="All 4 branches missed.">                if (result == null || result.isEmpty()) {</span>
+                    //eos
+                    try {
+<span class="nc" id="L1088">                        callbackStream.callback(null);</span>
+<span class="nc" id="L1089">                    } catch (Exception ex) {</span>
+<span class="nc" id="L1090">                        throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L1091">                    }</span>
+                } else {
+<span class="nc bnc" id="L1093" title="All 2 branches missed.">                    for (KeyValue keyValue : result.list()) {</span>
+<span class="nc" id="L1094">                        C fromColumnKeyBytes = marshaller.fromColumnKeyBytes(keyValue.getQualifier());</span>
+<span class="nc" id="L1095">                        V fromValueBytes = marshaller.fromValueBytes(keyValue.getValue());</span>
+
+                        try {
+<span class="nc" id="L1098">                            ColumnValueAndTimestamp&lt;C, V, TS&gt; cvat = new ColumnValueAndTimestamp&lt;&gt;(</span>
+                                fromColumnKeyBytes, fromValueBytes,
+                                (TS) (Object) keyValue.getTimestamp());
+<span class="nc bnc" id="L1101" title="All 2 branches missed.">                            if (callbackStream.callback(cvat) != cvat) {</span>
+<span class="nc" id="L1102">                                break;</span>
+                            }
+<span class="nc" id="L1104">                        } catch (Exception ex) {</span>
+<span class="nc" id="L1105">                            throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L1106">                        }</span>
+
+<span class="nc" id="L1108">                    }</span>
+                    try {
+<span class="nc" id="L1110">                        callbackStream.callback(null);</span>
+<span class="nc" id="L1111">                    } catch (Exception ex) {</span>
+<span class="nc" id="L1112">                        throw new CallbackStreamException(ex);</span>
+<span class="nc" id="L1113">                    }</span>
+<span class="nc" id="L1114">                    counters.got(1);</span>
+                }
+            }
+
+<span class="nc" id="L1118">        } catch (Exception ex) {</span>
+<span class="nc" id="L1119">            LOG.error(&quot;Failed to retrieve keys=&quot; + rowKeyCallbackStreamPairs + &quot; (all columns)&quot;, ex);</span>
+<span class="nc" id="L1120">            throw ex;</span>
+        } finally {
+<span class="nc" id="L1122">            try {</span>
+<span class="nc" id="L1123">                t.close();</span>
+<span class="nc" id="L1124">            } catch (IOException e) {</span>
+<span class="nc" id="L1125">                LOG.error(&quot;Failed to close hbase table!&quot;, e);</span>
+<span class="nc" id="L1126">            }</span>
+<span class="nc" id="L1127">        }</span>
+<span class="nc" id="L1128">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

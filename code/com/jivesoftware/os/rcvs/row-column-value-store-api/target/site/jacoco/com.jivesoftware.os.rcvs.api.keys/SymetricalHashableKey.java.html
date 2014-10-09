@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SymetricalHashableKey.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">row-column-value-store-api</a> &gt; <a href="index.html" class="el_package">com.jivesoftware.os.rcvs.api.keys</a> &gt; <span class="el_source">SymetricalHashableKey.java</span></div><h1>SymetricalHashableKey.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Jive Software, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package com.jivesoftware.os.rcvs.api.keys;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.jivesoftware.os.jive.utils.logger.MetricLogger;
+import com.jivesoftware.os.jive.utils.logger.MetricLoggerFactory;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.util.concurrent.ExecutionException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.SecretKeySpec;
+
+/**
+ * This is a useful class to fight monotonically increasing numbers. We use
+ * encryption to create a distribution HBase that is likely better than
+ * monotonically increasing.
+ */
+public class SymetricalHashableKey {
+
+<span class="fc" id="L42">    private static final MetricLogger LOG = MetricLoggerFactory.getLogger();</span>
+    private final LoadingCache&lt;Thread, Cipher&gt; encrypt;
+    private final LoadingCache&lt;Thread, Cipher&gt; decrypt;
+    private final int keyLengthInBytes;
+
+    public SymetricalHashableKey(String seed) throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException, UnsupportedEncodingException,
+<span class="fc" id="L48">        InvalidKeyException {</span>
+
+<span class="fc" id="L50">        final String type = &quot;RC4&quot;;</span>
+<span class="fc" id="L51">        byte[] keyBytes = seed.getBytes(&quot;ASCII&quot;);</span>
+<span class="fc" id="L52">        keyLengthInBytes = keyBytes.length;</span>
+<span class="fc" id="L53">        final SecretKeySpec key = new SecretKeySpec(keyBytes, type);</span>
+<span class="fc" id="L54">        encrypt = CacheBuilder.newBuilder().softValues().build(new CacheLoader&lt;Thread, Cipher&gt;() {</span>
+            @Override
+            public Cipher load(Thread thread) throws Exception {
+                try {
+<span class="fc" id="L58">                    Cipher cipher = Cipher.getInstance(type);</span>
+<span class="fc" id="L59">                    cipher.init(Cipher.ENCRYPT_MODE, key);</span>
+<span class="fc" id="L60">                    return cipher;</span>
+<span class="nc" id="L61">                } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException x) {</span>
+<span class="nc" id="L62">                    LOG.error(&quot;Failed makeing cipher &quot; + this, x);</span>
+<span class="nc" id="L63">                    return null;</span>
+                }
+            }
+        });
+
+<span class="fc" id="L68">        decrypt = CacheBuilder.newBuilder().softValues().build(new CacheLoader&lt;Thread, Cipher&gt;() {</span>
+            @Override
+            public Cipher load(Thread thread) throws Exception {
+                try {
+<span class="fc" id="L72">                    Cipher cipher = Cipher.getInstance(type);</span>
+<span class="fc" id="L73">                    cipher.init(Cipher.DECRYPT_MODE, key);</span>
+<span class="fc" id="L74">                    return cipher;</span>
+<span class="nc" id="L75">                } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException x) {</span>
+<span class="nc" id="L76">                    LOG.error(&quot;Failed makeing cipher &quot; + this, x);</span>
+<span class="nc" id="L77">                    return null;</span>
+                }
+            }
+        });
+<span class="fc" id="L81">    }</span>
+
+    public byte[] toHash(byte[] input) throws InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, ExecutionException {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (input == null) {</span>
+<span class="nc" id="L85">            return null;</span>
+        }
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (keyLengthInBytes != input.length) {</span>
+<span class="nc" id="L88">            throw new IllegalStateException(&quot;input length=&quot; + input.length + &quot; must be that same as the seed length=&quot; + keyLengthInBytes);</span>
+        }
+<span class="fc" id="L90">        return encrypt.get(Thread.currentThread()).update(input);</span>
+    }
+
+    public byte[] toBytes(byte[] hash) throws InvalidKeyException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, ExecutionException {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (hash == null) {</span>
+<span class="nc" id="L95">            return null;</span>
+        }
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (keyLengthInBytes != hash.length) {</span>
+<span class="nc" id="L98">            throw new IllegalStateException(&quot;hash length=&quot; + hash.length + &quot; must be that same as the seed length=&quot; + keyLengthInBytes);</span>
+        }
+<span class="fc" id="L100">        return decrypt.get(Thread.currentThread()).update(hash);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LongTypeMarshaller.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">row-column-value-store-marshall-primatives</a> &gt; <a href="index.html" class="el_package">com.jivesoftware.os.rcvs.marshall.primatives</a> &gt; <span class="el_source">LongTypeMarshaller.java</span></div><h1>LongTypeMarshaller.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Jive Software, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package com.jivesoftware.os.rcvs.marshall.primatives;
+
+import com.jivesoftware.os.rcvs.marshall.api.TypeMarshaller;
+import com.jivesoftware.os.rcvs.marshall.api.UtilLexMarshaller;
+import java.nio.ByteBuffer;
+
+/**
+ * Marshall Long to and from bytes
+ */
+<span class="nc" id="L25">public class LongTypeMarshaller implements TypeMarshaller&lt;Long&gt; {</span>
+
+    @Override
+    public Long fromBytes(byte[] bytes) throws Exception {
+<span class="nc" id="L29">        return ByteBuffer.wrap(bytes).getLong();</span>
+    }
+
+    @Override
+    public byte[] toBytes(Long t) throws Exception {
+<span class="nc" id="L34">        ByteBuffer bb = ByteBuffer.allocate(8);</span>
+<span class="nc" id="L35">        bb.putLong(t);</span>
+<span class="nc" id="L36">        return bb.array();</span>
+    }
+
+    @Override
+    public Long fromLexBytes(byte[] lexBytes) throws Exception {
+<span class="nc" id="L41">        return UtilLexMarshaller.longFromLex(lexBytes);</span>
+    }
+
+    @Override
+    public byte[] toLexBytes(Long t) throws Exception {
+<span class="nc" id="L46">        return UtilLexMarshaller.longToLex(t);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

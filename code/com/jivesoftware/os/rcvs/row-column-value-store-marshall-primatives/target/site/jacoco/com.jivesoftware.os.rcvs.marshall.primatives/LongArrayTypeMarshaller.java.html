@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LongArrayTypeMarshaller.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="right"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">row-column-value-store-marshall-primatives</a> &gt; <a href="index.html" class="el_package">com.jivesoftware.os.rcvs.marshall.primatives</a> &gt; <span class="el_source">LongArrayTypeMarshaller.java</span></div><h1>LongArrayTypeMarshaller.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Jive Software, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package com.jivesoftware.os.rcvs.marshall.primatives;
+
+import com.jivesoftware.os.rcvs.marshall.api.TypeMarshaller;
+import java.nio.ByteBuffer;
+
+/**
+ * Marshall long to and from bytes
+ */
+<span class="nc" id="L24">public class LongArrayTypeMarshaller implements TypeMarshaller&lt;long[]&gt; {</span>
+
+    @Override
+    public long[] fromBytes(byte[] bytes) throws Exception {
+
+<span class="nc" id="L29">        ByteBuffer bb = ByteBuffer.wrap(bytes);</span>
+<span class="nc" id="L30">        int length = bb.getInt();</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        if (length == -1) {</span>
+<span class="nc" id="L32">            return null;</span>
+        }
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (length == 0) {</span>
+<span class="nc" id="L35">            return new long[0];</span>
+        }
+<span class="nc" id="L37">        long[] a = new long[length];</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        for (int i = 0; i &lt; length; i++) {</span>
+<span class="nc" id="L39">            a[i] = bb.getLong();</span>
+        }
+<span class="nc" id="L41">        return a;</span>
+    }
+
+    @Override
+    public byte[] toBytes(long[] t) throws Exception {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (t == null) {</span>
+<span class="nc" id="L47">            ByteBuffer bb = ByteBuffer.allocate(4);</span>
+<span class="nc" id="L48">            bb.putInt(-1);</span>
+<span class="nc" id="L49">            return bb.array();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        } else if (t.length == 0) {</span>
+<span class="nc" id="L51">            ByteBuffer bb = ByteBuffer.allocate(4);</span>
+<span class="nc" id="L52">            bb.putInt(0);</span>
+<span class="nc" id="L53">            return bb.array();</span>
+        } else {
+<span class="nc" id="L55">            ByteBuffer bb = ByteBuffer.allocate(4 + (t.length * 8));</span>
+<span class="nc" id="L56">            bb.putInt(t.length);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (int i = 0; i &lt; t.length; i++) {</span>
+<span class="nc" id="L58">                bb.putLong(t[i]);</span>
+            }
+<span class="nc" id="L60">            return bb.array();</span>
+        }
+    }
+
+    @Override
+    public long[] fromLexBytes(byte[] lexBytes) throws Exception {
+<span class="nc" id="L66">        return fromBytes(lexBytes);</span>
+    }
+
+    @Override
+    public byte[] toLexBytes(long[] t) throws Exception {
+<span class="nc" id="L71">        return toBytes(t);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.6.3.201306030806</span></div></body></html>

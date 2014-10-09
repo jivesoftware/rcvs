@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+row-column-value-store-inmemory,com.jivesoftware.os.rcvs.inmemory,RowColumnValueStoreImpl.new ValueStoreMarshaller() {...},0,13,0,0,0,3,0,2,0,2
+row-column-value-store-inmemory,com.jivesoftware.os.rcvs.inmemory,RowColumnValueStoreImpl.new ValueStoreMarshaller() {...},0,11,0,0,0,3,0,2,0,2
+row-column-value-store-inmemory,com.jivesoftware.os.rcvs.inmemory,Timestamped,0,52,0,6,0,16,0,9,0,6
+row-column-value-store-inmemory,com.jivesoftware.os.rcvs.inmemory,InMemorySetOfSortedMapsImplInitializer,15,0,0,0,4,0,4,0,4,0
+row-column-value-store-inmemory,com.jivesoftware.os.rcvs.inmemory,RowColumnValueStoreImpl.new ValueStoreMarshaller() {...},0,24,0,0,0,4,0,2,0,2
+row-column-value-store-inmemory,com.jivesoftware.os.rcvs.inmemory,RowColumnValueStoreImpl,555,693,59,53,113,148,47,37,9,19

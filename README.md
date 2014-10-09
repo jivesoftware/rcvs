@@ -1,4 +1,4 @@
-rcvs
-====
+jive-utils
+==========
 
-Row Column Value Store abstraction
+A collection of libraries used by  jivesoftware open source projects.

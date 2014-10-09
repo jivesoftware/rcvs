@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="15" passed="15">
+  <reporter-output>
+  </reporter-output>
+  <suite name="com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest" duration-ms="1066" started-at="2014-10-09T16:57:19Z" finished-at="2014-10-09T16:57:20Z">
+    <groups>
+    </groups>
+    <test name="Command line test" duration-ms="1066" started-at="2014-10-09T16:57:19Z" finished-at="2014-10-09T16:57:20Z">
+      <class name="com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest">
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="885" started-at="2014-10-09T06:57:19Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testAdd()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testAdd" duration-ms="8" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testAdd -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testCheckAndAdd()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testCheckAndAdd" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testCheckAndAdd -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testGetEntries()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testGetEntries" duration-ms="19" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testGetEntries -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testGetKeys()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testGetKeys" duration-ms="3" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testGetKeys -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testGetValues()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testGetValues" duration-ms="3" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testGetValues -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="testMultiAdd()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiAdd" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiAdd -->
+        <test-method status="PASS" signature="testMultiGet()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiGet" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiGet -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testMultiGetEntries()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiGetEntries" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiGetEntries -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="testMultiRemove()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiRemove" duration-ms="2" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiRemove -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testMultiRowGetAll()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiRowGetAll" duration-ms="6" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiRowGetAll -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testMultiRowsMultiAdd()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiRowsMultiAdd" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiRowsMultiAdd -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testMultiRowsMultiRemove()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testMultiRowsMultiRemove" duration-ms="3" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testMultiRowsMultiRemove -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="testPermanentRemoveRow()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testPermanentRemoveRow" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testPermanentRemoveRow -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="testRemove()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testRemove" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testRemove -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="setUpMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="setUpMethod" is-config="true" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpMethod -->
+        <test-method status="PASS" signature="tearDownMethod()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="tearDownMethod" is-config="true" duration-ms="1" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownMethod -->
+        <test-method status="PASS" signature="testRemoveRow()[pri:0, instance:com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest@ee1fdae]" name="testRemoveRow" duration-ms="0" started-at="2014-10-09T06:57:20Z" finished-at="2014-10-09T06:57:20Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testRemoveRow -->
+      </class> <!-- com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest -->
+    </test> <!-- Command line test -->
+  </suite> <!-- com.jivesoftware.os.rcvs.inmemory.InMemoryRowColumnValueStoreTest -->
+</testng-results>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.6">
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-inmemory/src/main/java/com/jivesoftware/os/rcvs/inmemory/InMemorySetOfSortedMapsImplInitializer.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-inmemory/src/main/java/com/jivesoftware/os/rcvs/inmemory/RowColumnValueStoreImpl.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-inmemory/src/main/java/com/jivesoftware/os/rcvs/inmemory/Timestamped.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-inmemory/src/test/java/com/jivesoftware/os/rcvs/inmemory/InMemoryRowColumnValueStoreTest.java">
+</file>
+</checkstyle>

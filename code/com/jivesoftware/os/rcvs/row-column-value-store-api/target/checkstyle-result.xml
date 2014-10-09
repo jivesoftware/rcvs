@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="5.6">
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/CallbackStreamException.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ColumnValueAndTimestamp.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/DefaultRowColumnValueStoreMarshaller.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/FixedWidthSymetricalHashableMarshaller.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/KeyedColumnValueCallbackStream.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/keys/ReverseKey.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/keys/SymetricalHashableKey.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/KeyToStringUtils.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/MasterSlaveHASetOfSortedMaps.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/MultiAdd.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/MultiRemove.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/NeverAcceptsFailureSetOfSortedMaps.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/RowColumnTimestampRemove.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/RowColumnValueStore.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/RowColumnValueStoreMarshaller.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/RowColumnValueStoreMarshallerException.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/RowColumValueTimestampAdd.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/SetOfSortedMapsImplInitializer.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantFirstRowColumnValueStoreMarshaller.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantIdAndRow.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantKeyedColumnValueCallbackStream.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantLengthAndTenantFirstRowColumnValueStoreMarshaller.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantRowColumnTimestampRemove.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantRowColumValueTimestampAdd.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ThunderingHerd.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/timestamper/AtomicIncrementingTimestamper.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/timestamper/ConstantTimestamper.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/timestamper/CurrentTimestamper.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/timestamper/Timestamper.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ValueStoreMarshaller.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/test/java/com/jivesoftware/os/rcvs/api/FixedWidthSymetricalHashableMarshallerNGTest.java">
+</file>
+<file name="/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/test/java/com/jivesoftware/os/rcvs/api/keys/SymetricalHashableKeyTest.java">
+</file>
+</checkstyle>

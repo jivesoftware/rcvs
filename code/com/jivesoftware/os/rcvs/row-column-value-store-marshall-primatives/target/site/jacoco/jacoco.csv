@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,IntegerTypeMarshaller,0,27,0,0,0,7,0,5,0,5
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,DoubleTypeMarshaller,27,0,0,0,7,0,5,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,StringTypeMarshaller,19,0,0,0,5,0,5,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,IntArrayTypeMarshaller,99,0,12,0,26,0,11,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,DoubleArrayTypeMarshaller,99,0,12,0,26,0,11,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,BooleanTypeMarshaller,40,0,4,0,9,0,7,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,LongTypeMarshaller,27,0,0,0,7,0,5,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,ByteArrayTypeMarshaller,15,0,0,0,5,0,5,0,5,0
+row-column-value-store-marshall-primatives,com.jivesoftware.os.rcvs.marshall.primatives,LongArrayTypeMarshaller,99,0,12,0,26,0,11,0,5,0
