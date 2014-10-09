@@ -12,7 +12,7 @@
         <relativePath>inheritance-poms/global-repo-management/pom.xml</relativePath>
     </parent>
     <modules>
-<module>inheritance-poms</module>
+        <module>inheritance-poms</module>
         <module>row-column-value-store-api</module>
         <module>row-column-value-store-hbase</module>
         <module>row-column-value-store-hbase-ha-tests</module>
@@ -21,6 +21,7 @@
         <module>row-column-value-store-tests</module>
         <module>row-column-value-store-marshall-api</module>
         <module>row-column-value-store-marshall-primatives</module>
+        <module>row-column-value-store-marshall-id</module>
     </modules>
 
 </project>
