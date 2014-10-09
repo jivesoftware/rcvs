@@ -1,9 +1,0 @@
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/BooleanTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/StringTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/LongTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/ByteArrayTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/DoubleTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/IntegerTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/IntArrayTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/DoubleArrayTypeMarshaller.java
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-marshall-primatives/src/main/java/com/jivesoftware/os/rcvs/marshall/primatives/LongArrayTypeMarshaller.java

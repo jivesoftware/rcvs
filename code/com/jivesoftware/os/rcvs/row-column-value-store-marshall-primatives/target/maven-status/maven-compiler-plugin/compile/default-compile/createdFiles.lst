@@ -1,9 +1,0 @@
-com/jivesoftware/os/rcvs/marshall/primatives/IntArrayTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/LongTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/BooleanTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/DoubleArrayTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/LongArrayTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/ByteArrayTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/IntegerTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/DoubleTypeMarshaller.class
-com/jivesoftware/os/rcvs/marshall/primatives/StringTypeMarshaller.class
