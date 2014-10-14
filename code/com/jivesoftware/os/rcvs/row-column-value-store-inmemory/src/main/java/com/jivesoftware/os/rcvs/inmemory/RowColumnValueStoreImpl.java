@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
@@ -159,12 +160,16 @@ public class RowColumnValueStoreImpl<T, S, K, V> implements RowColumnValueStore<
         try {
             NavigableMap<S, NavigableMap<K, Timestamped<V>>> store = getStore(tenantId);
 
-            Map<K, Timestamped<V>> copy = new ConcurrentSkipListMap<>();
+            ConcurrentNavigableMap<K, Timestamped<V>> copy = new ConcurrentSkipListMap<>();
             synchronized (rowLocks.lock(rowKey)) {
                 Map<K, Timestamped<V>> map = store.get(rowKey);
                 if (map != null) {
                     copy.putAll(map);
                 }
+            }
+
+            if (startColumnKey != null) {
+                copy = copy.tailMap(startColumnKey, true);
             }
 
             long count = 0;
