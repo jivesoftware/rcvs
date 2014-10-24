@@ -57,6 +57,9 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnRangeFilter;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 
 /**
  * HBase implementation of RowColumnValueStore generic interface. In any method that has an Integer overrideConsistency, that argument is ignored. In any method
@@ -800,28 +803,28 @@ public class HBaseSetOfSortedMapsImpl<T, R, C, V> implements RowColumnValueStore
                     scan.setStopRow(marshaller.toRowKeyBytes(tenantId, stopRowKey));
                 }
             }
+            //see http://hbase.apache.org/book/perf.reading.html#perf.hbase.client.rowkeyonly
+            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL, new FirstKeyOnlyFilter(), new KeyOnlyFilter()));
             scan.setBatch(batchSize);
             ResultScanner resultScanner = t.getScanner(scan);
             EOS:
             for (Result result : resultScanner) {
-                if (result.isEmpty()) {
-                    continue;
-                }
-                for (KeyValue keyValue : result.list()) {
-                    try {
-                        byte[] rawRowKey = keyValue.getRow();
-                        TenantIdAndRow<T, R> entry = marshaller.fromRowKeyBytes(rawRowKey);
-                        try {
-                            if (callback.callback(entry) != entry) {
-                                // stop stream requested
-                                break;
-                            }
-                        } catch (Exception ex) {
-                            throw new CallbackStreamException(ex);
-                        }
-                    } catch (Exception x) {
-                        LOG.error("unable to handle keySlice.", x);
+                try {
+                    byte[] rawRowKey = result.getRow();
+                    if (rawRowKey == null) {
+                        continue;
                     }
+                    TenantIdAndRow<T, R> entry = marshaller.fromRowKeyBytes(rawRowKey);
+                    try {
+                        if (callback.callback(entry) != entry) {
+                            // stop stream requested
+                            break;
+                        }
+                    } catch (Exception ex) {
+                        throw new CallbackStreamException(ex);
+                    }
+                } catch (Exception x) {
+                    LOG.error("unable to handle keySlice.", x);
                 }
             }
             // EOS end of stream
