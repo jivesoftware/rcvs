@@ -37,21 +37,20 @@
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
-            <artifactId>row-column-value-store-tests</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-marshall-primatives</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase</artifactId>
+            <artifactId>hbase-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.jive.utils</groupId>
@@ -64,18 +63,6 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-client</artifactId>
-            <version>0.96.0-hadoop2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-common</artifactId>
-            <version>0.96.0-hadoop2</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

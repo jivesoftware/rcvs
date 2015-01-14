@@ -31,10 +31,5 @@
             <groupId>com.jivesoftware.os.jive.utils</groupId>
             <artifactId>logger</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.jivesoftware.os.rcvs</groupId>
-            <artifactId>row-column-value-store-tests</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>

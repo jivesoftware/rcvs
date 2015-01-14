@@ -18,7 +18,6 @@
         <module>row-column-value-store-hbase-ha-tests</module>
         <module>row-column-value-store-inmemory</module>
         <module>row-column-value-store-shared</module>
-        <module>row-column-value-store-tests</module>
         <module>row-column-value-store-marshall-api</module>
         <module>row-column-value-store-marshall-primatives</module>
         <module>row-column-value-store-marshall-id</module>

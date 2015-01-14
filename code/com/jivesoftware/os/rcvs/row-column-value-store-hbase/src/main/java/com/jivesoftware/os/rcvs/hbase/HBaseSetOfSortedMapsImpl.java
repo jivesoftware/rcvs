@@ -455,7 +455,7 @@ public class HBaseSetOfSortedMapsImpl<T, R, C, V> implements RowColumnValueStore
             List<Delete> deletes = new LinkedList<>();
             for (int i = 0; i < columnKeys.length; i++) {
                 byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKeys[i]);
-                Delete delete = new Delete(rawRowKey, timestamp, null);
+                Delete delete = new Delete(rawRowKey, timestamp);
                 delete.deleteColumns(family, rawColumnKey, timestamp);
                 deletes.add(delete);
             }
@@ -489,7 +489,7 @@ public class HBaseSetOfSortedMapsImpl<T, R, C, V> implements RowColumnValueStore
                 if (remove.getOverrideTimestamper() != null) {
                     timestamp = remove.getOverrideTimestamper().get();
                 }
-                Delete delete = new Delete(rawRowKey, timestamp, null);
+                Delete delete = new Delete(rawRowKey, timestamp);
                 delete.deleteColumns(family, rawColumnKey, timestamp);
                 deletes.add(delete);
             }
@@ -523,7 +523,7 @@ public class HBaseSetOfSortedMapsImpl<T, R, C, V> implements RowColumnValueStore
                 if (remove.getOverrideTimestamper() != null) {
                     timestamp = remove.getOverrideTimestamper().get();
                 }
-                Delete delete = new Delete(rawRowKey, timestamp, null);
+                Delete delete = new Delete(rawRowKey, timestamp);
                 delete.deleteColumns(family, rawColumnKey, timestamp);
                 deletes.add(delete);
             }
@@ -560,7 +560,7 @@ public class HBaseSetOfSortedMapsImpl<T, R, C, V> implements RowColumnValueStore
             final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);
             final byte[] rawColumnKey = marshaller.toColumnKeyBytes(columnKey);
 
-            Delete delete = new Delete(rawRowKey, timestamp, null);
+            Delete delete = new Delete(rawRowKey, timestamp);
             delete.deleteColumns(family, rawColumnKey, timestamp);
 
             t.delete(delete);
@@ -853,7 +853,7 @@ public class HBaseSetOfSortedMapsImpl<T, R, C, V> implements RowColumnValueStore
             final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();
             final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);
 
-            Delete delete = new Delete(rawRowKey, timestamp, null);
+            Delete delete = new Delete(rawRowKey, timestamp);
             delete.setTimestamp(timestamp);
             t.delete(delete);
             t.flushCommits();
