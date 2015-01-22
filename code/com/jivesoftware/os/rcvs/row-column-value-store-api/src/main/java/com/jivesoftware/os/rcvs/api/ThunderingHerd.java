@@ -16,8 +16,8 @@
 package com.jivesoftware.os.rcvs.api;
 
 import com.jivesoftware.os.jive.utils.base.util.UtilThread;
-import com.jivesoftware.os.jive.utils.logger.MetricLogger;
-import com.jivesoftware.os.jive.utils.logger.MetricLoggerFactory;
+import com.jivesoftware.os.mlogger.core.MetricLogger;
+import com.jivesoftware.os.mlogger.core.MetricLoggerFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**

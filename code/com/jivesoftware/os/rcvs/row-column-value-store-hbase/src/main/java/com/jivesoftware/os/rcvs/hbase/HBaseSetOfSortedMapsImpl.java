@@ -17,8 +17,8 @@ package com.jivesoftware.os.rcvs.hbase;
 
 import com.google.common.collect.Lists;
 import com.jivesoftware.os.jive.utils.base.interfaces.CallbackStream;
-import com.jivesoftware.os.jive.utils.logger.MetricLogger;
-import com.jivesoftware.os.jive.utils.logger.MetricLoggerFactory;
+import com.jivesoftware.os.mlogger.core.MetricLogger;
+import com.jivesoftware.os.mlogger.core.MetricLoggerFactory;
 import com.jivesoftware.os.rcvs.api.CallbackStreamException;
 import com.jivesoftware.os.rcvs.api.ColumnValueAndTimestamp;
 import com.jivesoftware.os.rcvs.api.KeyedColumnValueCallbackStream;

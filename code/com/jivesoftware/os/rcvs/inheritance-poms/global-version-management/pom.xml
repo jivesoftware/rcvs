@@ -11,7 +11,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jive.utils.version>0.61</jive.utils.version>
+        <jive.utils.version>0.63</jive.utils.version>
+        <mlogger-version>0.4</mlogger-version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -61,9 +62,9 @@
                 <version>${jive.utils.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>logger</artifactId>
-                <version>${jive.utils.version}</version>
+                <groupId>com.jivesoftware.os.mlogger</groupId>
+                <artifactId>core</artifactId>
+                <version>${mlogger-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.jive.utils</groupId>
