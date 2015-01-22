@@ -1,4 +1,4 @@
-#Thu Jan 22 13:33:16 HST 2015
+#Thu Jan 22 13:34:47 HST 2015
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/test/java/com/jivesoftware/os/rcvs/api/keys/SymetricalHashableKeyTest.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantLengthAndTenantFirstRowColumnValueStoreMarshaller.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/CallbackStreamException.java=1412874331000
@@ -17,14 +17,14 @@
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/KeyToStringUtils.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/KeyedColumnValueCallbackStream.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantKeyedColumnValueCallbackStream.java=1412874331000
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ValueStoreMarshaller.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/DefaultRowColumnValueStoreMarshaller.java=1412874331000
+/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ValueStoreMarshaller.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/timestamper/ConstantTimestamper.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ThunderingHerd.java=1421969444000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/RowColumnValueStoreMarshaller.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/TenantRowColumnTimestampRemove.java=1412874331000
-configuration*?=0CD9503F727CC143F895442746D729204BF05DFB
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/FixedWidthSymetricalHashableMarshaller.java=1412874331000
+configuration*?=0CD9503F727CC143F895442746D729204BF05DFB
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/timestamper/CurrentTimestamper.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/main/java/com/jivesoftware/os/rcvs/api/ColumnValueAndTimestamp.java=1412874331000
 /jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-api/src/test/java/com/jivesoftware/os/rcvs/api/FixedWidthSymetricalHashableMarshallerNGTest.java=1412874331000
