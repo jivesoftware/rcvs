@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jivesoftware.os.rcvs.inheritance.poms</groupId>
         <artifactId>global-repo-management</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.10</version>
         <relativePath>../global-repo-management/pom.xml</relativePath>
     </parent>
     <artifactId>global-version-management</artifactId>
@@ -84,7 +84,7 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-api</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.jive.utils</groupId>
@@ -94,7 +94,7 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-shared</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
@@ -104,17 +104,17 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-marshall-primatives</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-marshall-api</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-hbase094</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -125,7 +125,7 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-hbase098</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -136,7 +136,7 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-inmemory</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>0.10</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
