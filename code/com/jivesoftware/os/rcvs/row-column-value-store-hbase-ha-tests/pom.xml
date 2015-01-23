@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
-            <artifactId>row-column-value-store-hbase</artifactId>
+            <artifactId>row-column-value-store-hbase098</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>

@@ -1,6 +1,0 @@
-#Thu Jan 22 13:34:52 HST 2015
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-hbase/src/main/java/com/jivesoftware/os/rcvs/hbase/HBaseTableConfiguration.java=1421969444000
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-hbase/src/main/java/com/jivesoftware/os/rcvs/hbase/HBaseSetOfSortedMapsImpl.java=1421969444000
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-hbase/src/main/java/com/jivesoftware/os/rcvs/hbase/HBaseSetOfSortedMapsImplInitializer.java=1412874331000
-/jive/os/rcvs/code/com/jivesoftware/os/rcvs/row-column-value-store-hbase/src/test/java/com/jivesoftware/os/rcvs/hbase/HBaseRowColumnValueStoreTest.java=1412874331000
-configuration*?=692DD7951C2585A973038BE79ECD7D312C4BA392

@@ -12,7 +12,7 @@
 
     <properties>
         <jive.utils.version>0.63</jive.utils.version>
-        <mlogger-version>0.4</mlogger-version>
+        <mlogger-version>0.6</mlogger-version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -113,7 +113,18 @@
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-hbase</artifactId>
+                <artifactId>row-column-value-store-hbase094</artifactId>
+                <version>0.9-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.jivesoftware.os.rcvs</groupId>
+                <artifactId>row-column-value-store-hbase098</artifactId>
                 <version>0.9-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
@@ -133,52 +144,6 @@
                 <version>1.3.2</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-client</artifactId>
-                <version>0.98.6-cdh5.2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-common</artifactId>
-                <version>2.5.0-cdh5.2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-common</artifactId>
-                <version>0.98.6-cdh5.2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-           
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
