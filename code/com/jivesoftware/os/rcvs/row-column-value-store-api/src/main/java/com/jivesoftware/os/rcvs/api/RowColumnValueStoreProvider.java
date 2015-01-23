@@ -17,10 +17,10 @@ package com.jivesoftware.os.rcvs.api;
 
 import org.merlin.config.Config;
 
-public interface RowColumnValueStoreProvider<C extends Config, E extends Exception> {
+public interface RowColumnValueStoreProvider<C extends Config, I extends RowColumnValueStoreInitializer<E>, E extends Exception> {
 
     Class<C> getConfigurationClass();
 
-    Class<? extends RowColumnValueStoreInitializer<E>> getInitializerClass();
+    I create(C config);
 
 }

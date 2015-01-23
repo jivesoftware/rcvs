@@ -1,13 +1,12 @@
 package com.jivesoftware.os.rcvs.hbase098;
 
-import com.jivesoftware.os.rcvs.api.RowColumnValueStoreInitializer;
 import com.jivesoftware.os.rcvs.api.RowColumnValueStoreProvider;
 
 /**
  *
  */
 public class HBaseRowColumnValueStoreProvider implements
-    RowColumnValueStoreProvider<HBaseRowColumnValueStoreInitializer.HBase098RowColumnValueStoreConfig, Exception> {
+    RowColumnValueStoreProvider<HBaseRowColumnValueStoreInitializer.HBase098RowColumnValueStoreConfig, HBaseRowColumnValueStoreInitializer, Exception> {
 
     @Override
     public Class<HBaseRowColumnValueStoreInitializer.HBase098RowColumnValueStoreConfig> getConfigurationClass() {
@@ -15,7 +14,7 @@ public class HBaseRowColumnValueStoreProvider implements
     }
 
     @Override
-    public Class<? extends RowColumnValueStoreInitializer<Exception>> getInitializerClass() {
-        return HBaseRowColumnValueStoreInitializer.class;
+    public HBaseRowColumnValueStoreInitializer create(HBaseRowColumnValueStoreInitializer.HBase098RowColumnValueStoreConfig config) {
+        return new HBaseRowColumnValueStoreInitializer(config);
     }
 }
