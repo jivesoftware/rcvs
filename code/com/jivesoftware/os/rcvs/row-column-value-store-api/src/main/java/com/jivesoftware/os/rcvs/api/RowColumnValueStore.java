@@ -137,7 +137,6 @@ public interface RowColumnValueStore<T, R, C, V, E extends Exception> {
 
     /**
      *
-     * @param tenantId
      * @param multiRemove
      */
     void multiRowsMultiRemove(List<TenantRowColumnTimestampRemove<T, R, C>> multiRemove) throws E;
@@ -252,8 +251,7 @@ public interface RowColumnValueStore<T, R, C, V, E extends Exception> {
     /**
      *
      * @param <TS>
-     * @param tenantId
-     * @param rowKeyCallbackStreamPairs
+     * @param tenantRowKeyCallbackStreamPairs
      */
     <TS> void multiRowGetAll(List<TenantKeyedColumnValueCallbackStream<T, R, C, V, TS>> tenantRowKeyCallbackStreamPairs) throws E;
 }

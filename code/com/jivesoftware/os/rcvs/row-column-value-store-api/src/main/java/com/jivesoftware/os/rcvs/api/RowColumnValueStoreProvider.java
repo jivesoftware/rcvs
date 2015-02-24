@@ -15,12 +15,18 @@
  */
 package com.jivesoftware.os.rcvs.api;
 
+import java.io.IOException;
 import org.merlin.config.Config;
 
+/**
+ * @param <C> configuration type
+ * @param <I> initializer type
+ * @param <E> initializer exception type
+ */
 public interface RowColumnValueStoreProvider<C extends Config, I extends RowColumnValueStoreInitializer<E>, E extends Exception> {
 
     Class<C> getConfigurationClass();
 
-    I create(C config);
+    I create(C config) throws IOException;
 
 }
