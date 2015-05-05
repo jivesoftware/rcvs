@@ -20,7 +20,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.2.201409121644</version>
+                <version>0.7.4.201502262128</version>
                 <executions>
                     <execution>
                         <id>default-prepare-agent</id>
@@ -64,11 +64,6 @@
             <id>checks</id>
             <build>
                 <plugins>
-                    <!--Makes sure nobody depends on SNAPSHOTs.-->
-<!--                    <plugin>
-                        <groupId>com.jivesoftware.jive.build.configuration.maven.plugins</groupId>
-                        <artifactId>no-snapshots-plugin</artifactId>
-                    </plugin>-->
                 </plugins>
             </build>
         </profile>
