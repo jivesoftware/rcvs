@@ -523,4 +523,9 @@ public class InMemoryRowColumnValueStore<T, S, K, V> implements RowColumnValueSt
 
         }
     }
+
+    @Override
+    public HostAndPort locate(T tenantId, S rowKey) {
+        return null;
+    }
 }

@@ -22,6 +22,7 @@ import com.jivesoftware.os.rcvs.api.timestamper.Timestamper;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.merlin.config.Config;
 import org.merlin.config.defaults.IntDefault;
@@ -83,6 +84,7 @@ public class HBaseRowColumnValueStoreInitializer implements RowColumnValueStoreI
         hBaseTableConfiguration.ensureTableProvisioned(true);
 
         return new HBaseRowColumnValueStore<>(
+            HConnectionManager.getConnection(hbaseConfig),
             new HTablePool(hbaseConfig, POOL_SIZE),
             hBaseTableConfiguration.getFinalName(),
             hBaseTableConfiguration.getColumnFamilyName(),
@@ -109,6 +111,7 @@ public class HBaseRowColumnValueStoreInitializer implements RowColumnValueStoreI
         hBaseTableConfiguration.ensureTableProvisioned(true, true);
 
         return new HBaseRowColumnValueStore<>(
+            HConnectionManager.getConnection(hbaseConfig),
             new HTablePool(hbaseConfig, POOL_SIZE),
             hBaseTableConfiguration.getFinalName(),
             hBaseTableConfiguration.getColumnFamilyName(),
@@ -130,6 +133,7 @@ public class HBaseRowColumnValueStoreInitializer implements RowColumnValueStoreI
         hBaseTableConfiguration.ensureTableProvisioned(true);
 
         return new HBaseRowColumnValueStore<>(
+            HConnectionManager.getConnection(hbaseConfig),
             new HTablePool(hbaseConfig, POOL_SIZE),
             hBaseTableConfiguration.getFinalName(),
             hBaseTableConfiguration.getColumnFamilyName(),

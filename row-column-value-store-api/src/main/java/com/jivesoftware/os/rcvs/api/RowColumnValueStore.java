@@ -254,4 +254,24 @@ public interface RowColumnValueStore<T, R, C, V, E extends Exception> {
      * @param tenantRowKeyCallbackStreamPairs
      */
     <TS> void multiRowGetAll(List<TenantKeyedColumnValueCallbackStream<T, R, C, V, TS>> tenantRowKeyCallbackStreamPairs) throws E;
+
+    /**
+     * Locates the host/port some row for a tenant, so that a request can effectively be localized.
+     *
+     * @param tenantId
+     * @param rowKey
+     * @return the host and port of the instance local to the row, or null if no locality information is available.
+     * @throws E
+     */
+    HostAndPort locate(T tenantId, R rowKey) throws E;
+
+    class HostAndPort {
+        public final String host;
+        public final int port;
+
+        public HostAndPort(String host, int port) {
+            this.host = host;
+            this.port = port;
+        }
+    }
 }

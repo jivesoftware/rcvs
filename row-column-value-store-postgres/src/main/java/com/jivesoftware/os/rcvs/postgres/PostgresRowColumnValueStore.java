@@ -1379,6 +1379,11 @@ public class PostgresRowColumnValueStore<T, R, C, V> implements RowColumnValueSt
         }
     }
 
+    @Override
+    public HostAndPort locate(T tenantId, R rowKey) throws Exception {
+        return null;
+    }
+
     private String applyLimit(String sql, Long maxCount) {
         if (maxCount == null) {
             return sql;

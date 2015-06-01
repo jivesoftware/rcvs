@@ -388,4 +388,20 @@ public class NeverAcceptsFailureRowColumnValueStore<T, R, C, V> implements RowCo
             }
         }
     }
+
+    @Override
+    public HostAndPort locate(T tenantId, R rowKey) throws RuntimeException {
+        while (true) {
+            try {
+                thunderingHerd.herd();
+                return store.locate(tenantId, rowKey);
+            } catch (CallbackStreamException cex) {
+                throw cex;
+            } catch (Exception x) {
+                thunderingHerd.pushback();
+            } finally {
+                thunderingHerd.progress();
+            }
+        }
+    }
 }

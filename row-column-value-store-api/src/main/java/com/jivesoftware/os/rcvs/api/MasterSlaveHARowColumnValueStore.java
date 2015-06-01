@@ -203,4 +203,9 @@ public class MasterSlaveHARowColumnValueStore<T, R, C, V, E extends Exception> i
     public <TS> void multiRowGetAll(List<TenantKeyedColumnValueCallbackStream<T, R, C, V, TS>> tenantRowKeyCallbackStreamPairs) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public HostAndPort locate(T tenantId, R rowKey) throws E {
+        return master.locate(tenantId, rowKey);
+    }
 }

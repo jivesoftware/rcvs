@@ -46,6 +46,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
@@ -1127,5 +1128,11 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
                 LOG.error("Failed to close hbase table!", e);
             }
         }
+    }
+
+    @Override
+    public HostAndPort locate(T tenantId, R rowKey) throws Exception {
+        HRegionLocation location = connection.locateRegion(table, marshaller.toRowKeyBytes(tenantId, rowKey));
+        return new HostAndPort(location.getHostname(), location.getPort());
     }
 }

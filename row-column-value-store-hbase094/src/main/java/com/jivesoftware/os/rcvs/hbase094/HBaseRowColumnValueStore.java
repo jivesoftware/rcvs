@@ -46,9 +46,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.client.Put;
@@ -80,6 +82,7 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
     // pick the timestamp/version themselves, at least by default.
     private final Timestamper timestamper;
     private final RowColumnValueStoreMarshaller<T, R, C, V> marshaller;
+    private final HConnection connection;
     private final HTablePool tablePool;
     private final byte[] table;
     private final byte[] family;
@@ -98,6 +101,7 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
      * @throws IOException
      */
     public HBaseRowColumnValueStore(
+        HConnection connection,
         HTablePool tablePool,
         String tableName,
         String family,
@@ -114,6 +118,7 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
         this.marshaller = marshaller;
         this.family = family.getBytes("UTF-8");
         this.table = tableName.getBytes("UTF-8");
+        this.connection = connection;
         this.tablePool = tablePool;
 
         this.marshalExecutor = marshalExecutor;
@@ -1127,5 +1132,11 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
                 LOG.error("Failed to close hbase table!", e);
             }
         }
+    }
+
+    @Override
+    public HostAndPort locate(T tenantId, R rowKey) throws Exception {
+        HRegionLocation location = connection.locateRegion(table, marshaller.toRowKeyBytes(tenantId, rowKey));
+        return new HostAndPort(location.getHostname(), location.getPort());
     }
 }
