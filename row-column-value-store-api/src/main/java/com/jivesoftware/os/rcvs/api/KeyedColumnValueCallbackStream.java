@@ -15,8 +15,6 @@
  */
 package com.jivesoftware.os.rcvs.api;
 
-import com.jivesoftware.os.jive.utils.base.interfaces.CallbackStream;
-
 
 /**
  * Helper class to handle bulk operations in RowColumnValueStore

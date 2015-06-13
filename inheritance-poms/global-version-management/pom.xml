@@ -11,49 +11,15 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jive.utils.version>0.89</jive.utils.version>
-        <mlogger-version>0.9</mlogger-version>
+        <jive.utils.version>0.93</jive.utils.version>
+        <mlogger-version>0.10</mlogger-version>
+        <routing.bird.version>0.6</routing.bird.version>
     </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>hwal</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>ordered-id</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
                 <artifactId>id</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>io</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>map-store</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>keyed-store</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>chunk-store</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>jaxrs-util</artifactId>
                 <version>${jive.utils.version}</version>
             </dependency>
             <dependency>
@@ -67,54 +33,13 @@
                 <version>${mlogger-version}</version>
             </dependency>
             <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>http-client</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>http-client-rest</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
-                <artifactId>permit</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-api</artifactId>
-                <version>0.17-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.jive.utils</groupId>
+                <groupId>com.jivesoftware.os.routing.bird</groupId>
                 <artifactId>merlin-config</artifactId>
-                <version>${jive.utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-shared</artifactId>
-                <version>0.17-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-tests</artifactId>
-                <version>0.7-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-marshall-primatives</artifactId>
-                <version>0.17-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-marshall-api</artifactId>
-                <version>0.17-SNAPSHOT</version>
+                <version>${routing.bird.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-hbase094</artifactId>
-                <version>0.17-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -125,18 +50,12 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-hbase098</artifactId>
-                <version>0.17-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.jivesoftware.os.rcvs</groupId>
-                <artifactId>row-column-value-store-inmemory</artifactId>
-                <version>0.17-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

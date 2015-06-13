@@ -1,7 +1,7 @@
 package com.jivesoftware.os.rcvs.postgres;
 
 import com.google.common.collect.Lists;
-import com.jivesoftware.os.jive.utils.base.interfaces.CallbackStream;
+import com.jivesoftware.os.rcvs.api.CallbackStream;
 import com.jivesoftware.os.rcvs.api.ColumnValueAndTimestamp;
 import com.jivesoftware.os.rcvs.api.DefaultRowColumnValueStoreMarshaller;
 import com.jivesoftware.os.rcvs.api.RowColumValueTimestampAdd;

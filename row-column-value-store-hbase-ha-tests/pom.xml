@@ -21,20 +21,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jivesoftware.os.jive.utils</groupId>
+            <groupId>com.jivesoftware.os.routing.bird</groupId>
             <artifactId>merlin-config</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-api</artifactId>
+            <version>0.17-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-hbase098</artifactId>
+            <version>0.17-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-marshall-primatives</artifactId>
+            <version>0.17-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

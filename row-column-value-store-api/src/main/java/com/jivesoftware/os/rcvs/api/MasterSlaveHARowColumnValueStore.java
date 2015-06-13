@@ -15,7 +15,6 @@
  */
 package com.jivesoftware.os.rcvs.api;
 
-import com.jivesoftware.os.jive.utils.base.interfaces.CallbackStream;
 import com.jivesoftware.os.mlogger.core.MetricLogger;
 import com.jivesoftware.os.mlogger.core.MetricLoggerFactory;
 import com.jivesoftware.os.rcvs.api.timestamper.Timestamper;

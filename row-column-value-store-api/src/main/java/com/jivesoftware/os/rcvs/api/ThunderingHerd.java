@@ -15,7 +15,6 @@
  */
 package com.jivesoftware.os.rcvs.api;
 
-import com.jivesoftware.os.jive.utils.base.util.UtilThread;
 import com.jivesoftware.os.mlogger.core.MetricLogger;
 import com.jivesoftware.os.mlogger.core.MetricLoggerFactory;
 import java.util.concurrent.atomic.AtomicLong;
@@ -60,10 +59,18 @@ public class ThunderingHerd {
             }
             LOG.warn("Slowing the herd! " + pushback);
             LOG.inc("thundering>herd>slowed");
-            UtilThread.sleep(Math.min(100 * at, 10000)); // TODO expose and or tune
+            sleep(Math.min(100 * at, 10000)); // TODO expose and or tune
             if (at >= pushback.get()) { //  is pushback hasn't changed let this thread through
                 break;
             }
+        }
+    }
+
+    static public void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
         }
     }
 }
