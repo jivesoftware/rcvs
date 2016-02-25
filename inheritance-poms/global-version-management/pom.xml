@@ -11,9 +11,9 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jive.utils.version>0.93</jive.utils.version>
-        <mlogger-version>0.10</mlogger-version>
-        <routing.bird.version>0.6</routing.bird.version>
+        <jive.utils.version>0.94</jive.utils.version>
+        <mlogger-version>0.15</mlogger-version>
+        <routing.bird.version>0.42</routing.bird.version>
     </properties>
     <dependencyManagement>
         <dependencies>
