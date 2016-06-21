@@ -4,12 +4,12 @@
     <parent>
         <groupId>com.jivesoftware.os.rcvs.inheritance.poms</groupId>
         <artifactId>shared-lib-build-management</artifactId>
-        <version>0.22</version>
+        <version>0.23-SNAPSHOT</version>
         <relativePath>../inheritance-poms/shared-lib-build-management/pom.xml</relativePath>
     </parent>
     <groupId>com.jivesoftware.os.rcvs</groupId>
     <artifactId>row-column-value-store-hbase-ha-tests</artifactId>
-    <version>0.22</version>
+    <version>0.23-SNAPSHOT</version>
     <properties>
         <main.class>com.jivesoftware.os.rcvs.hbase.ha.tests.Main</main.class>
         <module.type>shared_lib</module.type>
@@ -27,17 +27,17 @@
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-api</artifactId>
-            <version>0.22</version>
+            <version>0.23-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-hbase098</artifactId>
-            <version>0.22</version>
+            <version>0.23-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jivesoftware.os.rcvs</groupId>
             <artifactId>row-column-value-store-marshall-primatives</artifactId>
-            <version>0.22</version>
+            <version>0.23-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
