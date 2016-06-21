@@ -45,6 +45,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.KeyValue;
@@ -121,7 +122,6 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
     }
 
     // Un-tested
-
     /**
      * @param rowKey
      * @param columnKeys
@@ -597,11 +597,11 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
         Integer overrideConsistency, CallbackStream<C> callback) throws Exception {
         get(tenantId, rowKey, startColumnKey, maxCount, batchSize, reversed, overrideNumberOfRetries, overrideConsistency, callback,
             new ValueStoreMarshaller<KeyValue, C>() {
-                @Override
-                public C marshall(KeyValue keyValue) throws Exception {
-                    return marshaller.fromColumnKeyBytes(keyValue.getQualifier());
-                }
-            });
+            @Override
+            public C marshall(KeyValue keyValue) throws Exception {
+                return marshaller.fromColumnKeyBytes(keyValue.getQualifier());
+            }
+        });
     }
 
     /**
@@ -620,11 +620,11 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
         Integer overrideConsistency, CallbackStream<V> callback) throws Exception {
         get(tenantId, rowKey, startColumnKey, maxCount, batchSize, reversed, overrideNumberOfRetries, overrideConsistency, callback,
             new ValueStoreMarshaller<KeyValue, V>() {
-                @Override
-                public V marshall(KeyValue keyValue) throws Exception {
-                    return marshaller.fromValueBytes(keyValue.getValue());
-                }
-            });
+            @Override
+            public V marshall(KeyValue keyValue) throws Exception {
+                return marshaller.fromValueBytes(keyValue.getValue());
+            }
+        });
     }
 
     /**
@@ -645,13 +645,13 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
 
         get(tenantId, rowKey, startColumnKey, maxCount, batchSize, reversed, overrideNumberOfRetries, overrideConsistency, callback,
             new ValueStoreMarshaller<KeyValue, ColumnValueAndTimestamp<C, V, TS>>() {
-                @Override
-                public ColumnValueAndTimestamp<C, V, TS> marshall(KeyValue keyValue) throws Exception {
-                    Object t = keyValue.getTimestamp();
-                    return new ColumnValueAndTimestamp<>(marshaller.fromColumnKeyBytes(keyValue.getQualifier()), marshaller.fromValueBytes(keyValue
-                        .getValue()), (TS) t);
-                }
-            });
+            @Override
+            public ColumnValueAndTimestamp<C, V, TS> marshall(KeyValue keyValue) throws Exception {
+                Object t = keyValue.getTimestamp();
+                return new ColumnValueAndTimestamp<>(marshaller.fromColumnKeyBytes(keyValue.getQualifier()), marshaller.fromValueBytes(keyValue
+                    .getValue()), (TS) t);
+            }
+        });
     }
 
     /**
@@ -853,8 +853,10 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
             final long timestamp = (overrideTimestamper == null) ? timestamper.get() : overrideTimestamper.get();
             final byte[] rawRowKey = marshaller.toRowKeyBytes(tenantId, rowKey);
 
+            LOG.info("Removing row: {} @ {}", Hex.encodeHexString(rawRowKey), timestamp);
+
             Delete delete = new Delete(rawRowKey, timestamp);
-            delete.setTimestamp(timestamp);
+            delete.deleteFamily(family, timestamp);
             t.delete(delete);
             t.flushCommits();
             counters.removed(1);
