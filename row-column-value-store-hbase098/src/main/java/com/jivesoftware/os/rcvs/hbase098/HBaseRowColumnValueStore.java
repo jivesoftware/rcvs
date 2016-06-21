@@ -861,20 +861,6 @@ public class HBaseRowColumnValueStore<T, R, C, V> implements RowColumnValueStore
             t.flushCommits();
             counters.removed(1);
 
-            // LAME ass check for timestamps
-            int[] count = {0};
-            getEntrys(tenantId, rowKey, null, Long.MAX_VALUE, 10, false, null, null, new CallbackStream<ColumnValueAndTimestamp<C, V, Object>>() {
-                @Override
-                public ColumnValueAndTimestamp<C, V, Object> callback(ColumnValueAndTimestamp<C, V, Object> value) throws Exception {
-                    if (count[0] > 10) {
-                        return null;
-                    }
-                    if (value != null) {
-                        LOG.info(value.getColumn() + " " + value.getValue() + " " + value.getTimestamp());
-                    }
-                    return value;
-                }
-            });
 
         } catch (RowColumnValueStoreMarshallerException | IOException ex) {
             LOG.error("Failed to remove. customer=" + tenantId + " key=" + rowKey, ex);
