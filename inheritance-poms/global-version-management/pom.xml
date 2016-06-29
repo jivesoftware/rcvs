@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jivesoftware.os.rcvs.inheritance.poms</groupId>
         <artifactId>global-repo-management</artifactId>
-        <version>0.26-SNAPSHOT</version>
+        <version>0.26</version>
         <relativePath>../global-repo-management/pom.xml</relativePath>
     </parent>
     <artifactId>global-version-management</artifactId>
@@ -40,7 +40,7 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-hbase094</artifactId>
-                <version>0.26-SNAPSHOT</version>
+                <version>0.26</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>com.jivesoftware.os.rcvs</groupId>
                 <artifactId>row-column-value-store-hbase098</artifactId>
-                <version>0.26-SNAPSHOT</version>
+                <version>0.26</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
